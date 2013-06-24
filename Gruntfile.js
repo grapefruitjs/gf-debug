@@ -13,6 +13,7 @@ module.exports = function(grunt) {
         '<%= dirs.src %>/main.js'
     ],
     vendorFiles = [
+        '<%= dirs.vendor %>/fpsmeter.js'
     ],
     banner = [
         '/**',
@@ -119,6 +120,7 @@ module.exports = function(grunt) {
                 /* Globals */
                 undef: true,
                 globals: {
+                    FPSMeter: false,
                     PIXI: false,
                     gf: false,
                     cp: false

@@ -1,21 +1,21 @@
 {
-    "name": "gf-plugin",
-    "longName": "GrapeFruit Plugin",
+    "name": "gf-debug",
+    "longName": "GrapeFruit Debug Plugin",
 
     "version": "0.0.1",
-    "description": "Provides useful plugin information",
+    "description": "Provides useful debugging information",
 
     "author": "Chad Engler <chad@pantherdev.com>",
     "contributors": [],
 
-    "homepage": "https://github.com/grapefruitjs/plugplate",
-    "bugs": "https://github.com/grapefruitjs/plugplate/issues",
+    "homepage": "https://github.com/grapefruitjs/gf-debug",
+    "bugs": "https://github.com/grapefruitjs/gf-debug/issues",
     "license": "MIT",
     "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
 
     "repository": {
         "type": "git",
-        "url": "https://github.com/grapefruitjs/plugplate.git"
+        "url": "https://github.com/grapefruitjs/gf-debug.git"
     },
 
     "dependencies": {},
