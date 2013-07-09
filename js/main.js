@@ -27,16 +27,14 @@ var d = {
         }
         cont = d._ensureContainer(cont);
 
-        o = o !== undefined ? o : {};
-        if(o) {
-            //add some of our defaults
-            o.smoothing = o.smoothing || 1;
-            o.heat = o.heat !== undefined ? o.heat : true;
-            o.graph = o.graph !== undefined ? o.graph : true;
-            o.history = o.history !== undefined ? o.history : 25;
+        o = o || {};
+        //add some of our defaults
+        o.smoothing = o.smoothing || 1;
+        o.heat = o.heat !== undefined ? o.heat : true;
+        o.graph = o.graph !== undefined ? o.graph : true;
+        o.history = o.history !== undefined ? o.history : 25;
 
-            d.meter = new FPSMeter(cont, o);
-        }
+        d.meter = new FPSMeter(cont, o);
     },
     //show the Entity Tracker
     showEntity: function(cont, ent) {
@@ -58,14 +56,14 @@ var d = {
 
         if(typeof cont === 'object' && cont.nodeType === undefined) {
             game = cont;
-            cont = document.body
+            cont = document.body;
         }
         cont = d._ensureContainer(cont);
 
         if(game) {
-            d.gamepad = new GamepadTracker(cont, game)
+            d.gamepad = new GamepadTracker(cont, game);
         }
-    }
+    },
 
     _beforeTick: function() {
         if(d.meter)
@@ -90,6 +88,11 @@ var d = {
             cont = document.body;
 
         return cont;
+    },
+    setStyle: function(dom, style) {
+        for(var key in style) {
+            dom.style[key] = style[key];
+        }
     }
 };
 
@@ -104,9 +107,3 @@ d.gfVersion = '@@GF_VERSION';
 
 //register the plugin to grapefruit
 gf.plugin.register(d, 'debug');
-
-function setStyle(dom, style) {
-    for(var key in style) {
-        dom.style[key] = style[key];
-    }
-}

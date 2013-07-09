@@ -10,6 +10,8 @@ module.exports = function(grunt) {
 
     //explicity set source files because order is important
     var srcFiles = [
+        '<%= dirs.src %>/EntityTracker.js',
+        '<%= dirs.src %>/GamepadTracker.js',
         '<%= dirs.src %>/main.js'
     ],
     vendorFiles = [
@@ -121,9 +123,9 @@ module.exports = function(grunt) {
                 undef: true,
                 globals: {
                     FPSMeter: false,
-                    PIXI: false,
                     gf: false,
-                    cp: false
+                    EntityTracker: false,
+                    GamepadTracker: false
                 }
             }
         },

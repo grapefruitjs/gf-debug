@@ -1,9 +1,19 @@
+var d = d || {}; //this makes jshint happy
+
+function getGpButtonName(v, i) {
+    return '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + gf.input.getGpButtonName(i) + ': ' + v.toFixed(2);
+}
+
+function getGpAxisName(v, i) {
+    return '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + gf.input.getGpAxisName(i) + ': ' + v.toFixed(2);
+}
+
 function GamepadTracker(cont, game) {
     this.game = game;
 
     //create DOM elements
     this.box = document.createElement('div');
-    setStyle(this.box, {
+    d.setStyle(this.box, {
         position: 'absolute',
         top: '50px',
         left: '5px',
@@ -14,16 +24,10 @@ function GamepadTracker(cont, game) {
         'background-color': '#222'
     });
 
-    this.label = document.createElement('span');
-    this.label.textContent = 'Gamepad State: ';
-
     this.value = document.createElement('span');
     this.value.textContent = 'X: 0, Y: 0';
 
-    this.label.appendChild(document.createElement('br'));
-    this.label.appendChild(this.value);
-
-    this.box.appendChild(this.label);
+    this.box.appendChild(this.value);
 
     //append us to the parent
     cont.appendChild(this.box);
@@ -38,16 +42,12 @@ GamepadTracker.prototype.tick = function() {
 
             this.value.innerHTML += 'Gamepad: [' + pad.index + '] ' + pad.id + '<br/>';
 
-            this.value.innerHTML += '&nbsp;&nbsp;&nbsp;Buttons:<br/>' + 
-                pad.buttons.map(function(v, i) {
-                    return '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + gf.input.getGpButtonName(i) + ': ' + v.toFixed(2);
-                }).join('<br/>') +
+            this.value.innerHTML += '&nbsp;&nbsp;&nbsp;Buttons:<br/>' +
+                pad.buttons.map(getGpButtonName).join('<br/>') +
                 '<br/>';
 
-            this.value.innerHTML += '&nbsp;&nbsp;&nbsp;Axes:<br/>' + 
-                pad.axes.map(function(v, i) {
-                    return '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + gf.input.getGpAxisName(i) + ': ' + v.toFixed(2);
-                }).join('<br/>') +
+            this.value.innerHTML += '&nbsp;&nbsp;&nbsp;Axes:<br/>' +
+                pad.axes.map(getGpAxisName).join('<br/>') +
                 '<br/>';
         }
     }

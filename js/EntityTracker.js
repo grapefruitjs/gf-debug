@@ -1,9 +1,11 @@
+var d = d || {}; //this makes jshint happy
+
 function EntityTracker(cont, ent) {
     this.entity = ent;
 
     //create DOM elements
     this.box = document.createElement('div');
-    setStyle(this.box, {
+    d.setStyle(this.box, {
         position: 'absolute',
         top: '25px',
         left: '5px',
@@ -30,6 +32,6 @@ function EntityTracker(cont, ent) {
 }
 
 EntityTracker.prototype.tick = function() {
-    this.value.textContent = 'X: ' + this.entity.position.x.toFixed(2) + 
+    this.value.textContent = 'X: ' + this.entity.position.x.toFixed(2) +
                             ', Y: ' + this.entity.position.y.toFixed(2);
 };
