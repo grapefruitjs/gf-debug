@@ -6,16 +6,20 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-yuidoc');
+    grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-replace');
 
     //explicity set source files because order is important
     var srcFiles = [
-        '<%= dirs.src %>/EntityTracker.js',
-        '<%= dirs.src %>/GamepadTracker.js',
-        '<%= dirs.src %>/main.js'
-    ],
-    vendorFiles = [
-        '<%= dirs.vendor %>/fpsmeter.js'
+        '<%= dirs.src %>/main.js',
+        '<%= dirs.src %>/panels/Panel.js',
+        '<%= dirs.src %>/panels/GamepadPanel.js',
+        '<%= dirs.src %>/panels/PerformancePanel.js',
+        '<%= dirs.src %>/panels/PhysicsPanel.js',
+        '<%= dirs.src %>/panels/SpritesPanel.js',
+        '<%= dirs.src %>/panels/WorldPanel.js',
+        '<%= dirs.src %>/util/Graph.js',
+        '<%= dirs.src %>/util/ui.js'
     ],
     banner = [
         '/**',
@@ -38,16 +42,18 @@ module.exports = function(grunt) {
         dirs: {
             build: 'build',
             docs: 'docs',
-            src: 'js',
-            vendor: 'vendor'
+            less: 'less',
+            src: 'js'
         },
         files: {
-            vendorBlob: '<%= dirs.vendor %>/**/*js',
             srcBlob: '<%= dirs.src %>/**/*.js',
             intro: '<%= dirs.src %>/intro.js',
             outro: '<%= dirs.src %>/outro.js',
-            build: '<%= dirs.build %>/<%= pkg.name %>.js',
-            buildMin: '<%= dirs.build %>/<%= pkg.name %>.min.js'
+            less: '<%= dirs.less %>/main.less',
+            buildJs: '<%= dirs.build %>/<%= pkg.name %>.js',
+            buildJsMin: '<%= dirs.build %>/<%= pkg.name %>.min.js',
+            buildCss: '<%= dirs.build %>/<%= pkg.name %>.css',
+            buildCssMin: '<%= dirs.build %>/<%= pkg.name %>.min.css',
         },
         replace: {
             dist: {
@@ -62,7 +68,7 @@ module.exports = function(grunt) {
                     {
                         expand: true,
                         flatten: true,
-                        src: ['<%= files.build %>', '<%= files.buildMin %>'],
+                        src: ['<%= files.buildJs %>', '<%= files.buildJsMin %>'],
                         dest: '<%= dirs.build %>'
                     }
                 ]
@@ -73,8 +79,8 @@ module.exports = function(grunt) {
                 banner: banner
             },
             dist: {
-                src: ['<%= files.intro %>'].concat(vendorFiles).concat(srcFiles).concat(['<%= files.outro %>']),
-                dest: '<%= files.build %>'
+                src: ['<%= files.intro %>'].concat(srcFiles).concat(['<%= files.outro %>']),
+                dest: '<%= files.buildJs %>'
             }
         },
         uglify: {
@@ -83,8 +89,8 @@ module.exports = function(grunt) {
                 mangle: false
             },
             dist: {
-                src: '<%= files.build %>',
-                dest: '<%= files.buildMin %>'
+                src: '<%= files.buildJs %>',
+                dest: '<%= files.buildJsMin %>'
             }
         },
         jshint: {
@@ -117,15 +123,12 @@ module.exports = function(grunt) {
                 devel: false,       //warn about using console.log and the like
                 jquery: false,      //no jquery used here
                 node: false,        //no node support...YET! :)
-                worker: true,       //web-workers are used
+                worker: false,       //web-workers are not used
 
                 /* Globals */
                 undef: true,
                 globals: {
-                    FPSMeter: false,
-                    gf: false,
-                    EntityTracker: false,
-                    GamepadTracker: false
+                    gf: false
                 }
             }
         },
@@ -140,11 +143,34 @@ module.exports = function(grunt) {
                     outdir: '<%= dirs.docs %>'
                 }
             }
+        },
+        less: {
+            dev: {
+                options: {
+                    paths: ['<%= dirs.less %>']
+                },
+                files: {
+                    '<%= files.buildCss %>': '<%= files.less %>'
+                }
+            },
+            prod: {
+                options: {
+                    paths: ['<%= dirs.less %>'],
+                    yuicompress: true
+                },
+                files: {
+                    '<%= files.buildCssMin %>': '<%= files.less %>'
+                }
+            }
         }
     });
 
-    //Load tasks
-    grunt.registerTask('default', ['build']);
-    grunt.registerTask('build', ['jshint', 'concat', 'uglify', 'replace']);
+    //default task
+    grunt.registerTask('default', ['hint', 'buildJs', 'buildCss']);
+
+    grunt.registerTask('hint', ['jshint']);
     grunt.registerTask('docs', ['yuidoc']);
+
+    grunt.registerTask('buildJs', ['concat', 'uglify', 'replace']);
+    grunt.registerTask('buildCss', ['less:dev', 'less:prod']);
 };

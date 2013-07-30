@@ -1,0 +1,67 @@
+//container
+.gf_debug {
+    .bg_container();
+
+    //menu bar
+    .gf_debug_menu {
+        position: fixed;
+        bottom: 0;
+        height: 32px;
+
+        //bar background
+        .bg_bar();
+        .font_bar();
+
+        //head of the menu bar
+        .gf_debug_head {
+        }
+
+        //main bar stats
+        .gf_debug_stats {
+
+            //an item on the stats bar
+            .gf_debug_stats_item {
+                float: left;
+                margin-left: 10px;
+
+                //fps stat item
+                &.fps {}
+
+                //ms stat item
+                &.ms {}
+
+                //sprites stat item
+                &.spr {}
+            }
+        }
+
+        //menu items (to switch between panels)
+        .gf_debug_menu_item {
+            float: left;
+            padding: 0 0 0 10px;
+            height: 32px;
+            line-height: 32px;
+            .border_menu_seperator();
+        }
+    }
+
+    //panels
+    .gf_debug_panel {
+        display: none;
+
+        //the world panel
+        &.world {}
+
+        //the sprites panel
+        &.sprites {}
+
+        //the physics panel
+        &.physics {}
+
+        //the gamepad panel
+        &.gamepad {}
+
+        //the performance panel
+        &.performance {}
+    }
+}
