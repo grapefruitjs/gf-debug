@@ -1,0 +1,79 @@
+/*
+Based on: http://cssdeck.com/labs/css-checkbox-styles
+*/
+
+.boxit(@color1, @color2) {
+  -webkit-box-shadow: inset 0px 1px 1px @color1, 0px 1px 3px @color2;
+  -moz-box-shadow: inset 0px 1px 1px @color1, 0px 1px 3px @color2;
+  box-shadow: inset 0px 1px 1px @color1, 0px 1px 3px @color2;
+}
+
+.gradit(@one, @two, @three) {
+    background: -webkit-linear-gradient(top, @one 0%, @two 40%, @three 100%);
+    background: -moz-linear-gradient(top, @one 0%, @two 40%, @three 100%);
+    background: -o-linear-gradient(top, @one 0%, @two 40%, @three 100%);
+    background: -ms-linear-gradient(top, @one 0%, @two 40%, @three 100%);
+    background: linear-gradient(top, @one 0%, @two 40%, @three 100%);
+}
+
+input[type=checkbox] {
+    visibility: hidden;
+}
+
+/* Status Orb (checkbox replacement) */
+.checkbox {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    background: #fcfff4;
+    margin: 5px;
+
+    .gradit(#fcfff4, #dfe5d7, #b3bead);
+    .rounded(50px);
+    .boxit(white, rgba(0,0,0,0.5));
+
+    label {
+        cursor: pointer;
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        left: 4px;
+        top: 4px;
+
+        .gradient(#222, #222, #45484d);
+        .rounded(50px);
+        .boxit(rgba(0,0,0,0.5), white); //0px 1px 0px white
+
+        &:after {
+            opacity: 0;
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 2px;
+            left: 2px;
+
+            .gradient(#00bf00, #00bf00, #009400);
+            .rounded(50px);
+            .boxit(white, rgba(0,0,0,0.5));
+        }
+
+        &:hover::after {
+            opacity: 0.3;
+        }
+    }
+
+    span {
+        position: relative;
+        display: block;
+        top: -15px;
+        left: 35px;
+        width: 250px;
+        color: #fcfff4;
+        font-size: 1.1em;
+    }
+
+    input[type=checkbox]:checked + label:after {
+        opacity: 1;
+    }
+}

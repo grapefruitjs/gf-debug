@@ -1,9 +1,11 @@
 //Some general dom helpers
 gf.debug.ui = {
-    bindDelegate: function(dom, evt, cls, fn) {
+    bindDelegate: function(dom, evt, cls, fn, name) {
+        name = name ? name.toUpperCase() : 'DIV';
+
         dom.addEventListener(evt, function(e) {
-            if(e.target && e.target.nodeName === 'div') {
-                var classes = e.target.className.trim().split(' ');
+            if(e.target && e.target.nodeName.toUpperCase() === name) {
+                var classes = e.target.className.split(' ');
 
                 if(classes && classes.indexOf(cls) !== -1) {
                     if(fn) fn(e);
@@ -13,20 +15,20 @@ gf.debug.ui = {
     },
 
     removeClass: function(dom, cls) {
-        var classes = dom.className.trim().split(' '),
+        var classes = dom.className.split(' '),
             i = classes.indexOf(cls);
 
         if(i !== -1) {
             classes.splice(i, 1);
-            dom.className = classes.join(' ');
+            dom.className = classes.join(' ').trim();
         }
     },
 
     addClass: function(dom, cls) {
-        var classes = dom.className.trim().split(' ');
+        var classes = dom.className.split(' ');
 
         classes.push(cls);
-        dom.className += classes.join(' ');
+        dom.className = classes.join(' ').trim();
     },
 
     setText: function(dom, txt) {

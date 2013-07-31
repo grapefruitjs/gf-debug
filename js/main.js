@@ -31,9 +31,8 @@ gf.debug.show = function(game) {
     this.panels = {
         world: new gf.debug.WorldPanel(game),
         sprites: new gf.debug.SpritesPanel(game),
-        physics: new gf.debug.PhysicsPanel(game),
         gamepad: new gf.debug.GamepadPanel(game),
-        perf: new gf.debug.PerformancePanel(game)
+        performance: new gf.debug.PerformancePanel(game)
     };
 
     this.logSpriteCount = false;
@@ -52,18 +51,33 @@ gf.debug.show = function(game) {
  * @param name {String} the event name to show on the graph
  */
 gf.debug.logEvent = function(name) {
-    if(this.panels && this.panels.perf)
-        this.panels.perf.logEvent(name);
+    if(this.panels && this.panels.performance)
+        this.panels.performance.logEvent(name);
 };
 
 gf.debug.bindEvents = function() {
-    var activeMenuItem;
-    this.ui.bindDelegate(this._bar, 'click', 'gf_debug_menu_item', function(e) {
-        if(activeMenuItem)
-            this.ui.removeClass(activeMenuItem, 'active');
+    var activePanel,
+        self = this;
 
-        this.ui.addClass(e.target, 'active');
-        activeMenuItem = e.target;
+    this.ui.bindDelegate(this._bar, 'click', 'gf_debug_menu_item', function(e) {
+        var panel = self.panels[e.target.className.replace(/gf_debug_menu_item|active/g, '').trim()];
+
+        if(!panel)
+            return;
+
+        if(activePanel) {
+            activePanel.toggle();
+            self.ui.removeClass(activePanel._menuItem, 'active');
+
+            if(activePanel.name === panel.name) {
+                activePanel = null;
+                return;
+            }
+        }
+
+        self.ui.addClass(e.target, 'active');
+        panel.toggle();
+        activePanel = panel;
     });
 };
 
@@ -131,7 +145,7 @@ gf.debug._beforeTick = function() {
 
 gf.debug._afterTick = function() {
     this.statsTick();
-    this.panels.perf.tick();
+    this.panels.performance.tick();
     this.panels.gamepad.tick();
 };
 

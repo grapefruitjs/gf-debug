@@ -18,8 +18,6 @@ gf.inherits(gf.debug.Panel, Object, {
         gf.debug.ui.addClass(div, 'gf_debug_menu_item ' + this.name);
         gf.debug.ui.setText(div, this.title);
 
-        div.addEventListener('click', this.toggle.bind(this), false);
-
         return div;
     },
     toggle: function() {

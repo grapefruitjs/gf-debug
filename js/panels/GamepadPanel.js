@@ -2,6 +2,7 @@ gf.debug.GamepadPanel = function(game) {
     gf.debug.Panel.call(this, game);
 
     this.name = 'gamepad';
+    this.title = 'Gamepad';
 };
 
 gf.inherits(gf.debug.GamepadPanel, gf.debug.Panel, {

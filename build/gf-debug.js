@@ -45,9 +45,8 @@ gf.debug.show = function(game) {
     this.panels = {
         world: new gf.debug.WorldPanel(game),
         sprites: new gf.debug.SpritesPanel(game),
-        physics: new gf.debug.PhysicsPanel(game),
         gamepad: new gf.debug.GamepadPanel(game),
-        perf: new gf.debug.PerformancePanel(game)
+        performance: new gf.debug.PerformancePanel(game)
     };
 
     this.logSpriteCount = false;
@@ -66,18 +65,33 @@ gf.debug.show = function(game) {
  * @param name {String} the event name to show on the graph
  */
 gf.debug.logEvent = function(name) {
-    if(this.panels && this.panels.perf)
-        this.panels.perf.logEvent(name);
+    if(this.panels && this.panels.performance)
+        this.panels.performance.logEvent(name);
 };
 
 gf.debug.bindEvents = function() {
-    var activeMenuItem;
-    this.ui.bindDelegate(this._bar, 'click', 'gf_debug_menu_item', function(e) {
-        if(activeMenuItem)
-            this.ui.removeClass(activeMenuItem, 'active');
+    var activePanel,
+        self = this;
 
-        this.ui.addClass(e.target, 'active');
-        activeMenuItem = e.target;
+    this.ui.bindDelegate(this._bar, 'click', 'gf_debug_menu_item', function(e) {
+        var panel = self.panels[e.target.className.replace(/gf_debug_menu_item|active/g, '').trim()];
+
+        if(!panel)
+            return;
+
+        if(activePanel) {
+            activePanel.toggle();
+            self.ui.removeClass(activePanel._menuItem, 'active');
+
+            if(activePanel.name === panel.name) {
+                activePanel = null;
+                return;
+            }
+        }
+
+        self.ui.addClass(e.target, 'active');
+        panel.toggle();
+        activePanel = panel;
     });
 };
 
@@ -145,7 +159,7 @@ gf.debug._beforeTick = function() {
 
 gf.debug._afterTick = function() {
     this.statsTick();
-    this.panels.perf.tick();
+    this.panels.performance.tick();
     this.panels.gamepad.tick();
 };
 
@@ -209,8 +223,6 @@ gf.inherits(gf.debug.Panel, Object, {
         gf.debug.ui.addClass(div, 'gf_debug_menu_item ' + this.name);
         gf.debug.ui.setText(div, this.title);
 
-        div.addEventListener('click', this.toggle.bind(this), false);
-
         return div;
     },
     toggle: function() {
@@ -230,13 +242,14 @@ gf.debug.GamepadPanel = function(game) {
     gf.debug.Panel.call(this, game);
 
     this.name = 'gamepad';
+    this.title = 'Gamepad';
 };
 
 gf.inherits(gf.debug.GamepadPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
-        gf.debug.ui.setText(div, this.name);
+        gf.debug.ui.setText(div, 'a gamepad image that shows the current gamepad state');
 
         return div;
     },
@@ -260,9 +273,10 @@ gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
             input: 'rgba(80, 80, 80, 1)',
             camera: 'rgba(80, 80, 220, 1)',
             physics: 'rgba(80, 220, 80, 1)',
-            render: 'rgba(220, 80, 80, 1)',
+            draw: 'rgba(220, 80, 80, 1)',
             event: 'rgba(200, 200, 200, 0.6)'
         });
+        this.graph.max = 100;
 
         return div;
     },
@@ -272,7 +286,7 @@ gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
                 input: t.inputEnd - t.inputStart,
                 camera: t.cameraEnd - t.cameraStart,
                 phys: t.physicsEnd - t.physicsStart,
-                render: t.renderEnd - t.renderStart
+                draw: t.renderEnd - t.renderStart
             },
             evt = this.eventQueue.shift();
 
@@ -285,47 +299,65 @@ gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
         this.eventQueue.push(name);
     }
 });
-gf.debug.PhysicsPanel = function(game) {
-    gf.debug.Panel.call(this, game);
-
-    this.name = 'physics';
-};
-
-gf.inherits(gf.debug.PhysicsPanel, gf.debug.Panel, {
-    createPanelElement: function() {
-        var div = gf.debug.Panel.prototype.createPanelElement.call(this);
-
-        gf.debug.ui.setText(div, this.name);
-
-        return div;
-    }
-});
 gf.debug.SpritesPanel = function(game) {
     gf.debug.Panel.call(this, game);
 
     this.name = 'sprites';
+    this.title = 'Sprites';
 };
 
 gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
     createPanelElement: function() {
-        var div = gf.debug.Panel.prototype.createPanelElement.call(this);
+        var div = gf.debug.Panel.prototype.createPanelElement.call(this),
+            col = document.createElement('div');
 
-        gf.debug.ui.setText(div, this.name);
+        gf.debug.ui.addClass(col, 'checkbox');
+        gf.debug.ui.setHtml(col,
+            '<input type="checkbox" value="None" id="gf_debug_toggleCollisions" class="gf_debug_toggleCollisions" name="check" />' +
+            '<label for="gf_debug_toggleCollisions"></label>' +
+            '<span>Show sprite colliders</span>'
+        );
+        gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleCollisions', this.toggleCollisions.bind(this), 'input');
+        div.appendChild(col);
 
         return div;
+    },
+    toggleCollisions: function() {
+        var obj = this.game.stage,
+            style = {
+                color: 0xff2222,
+                sensor: {
+                    color: 0x22ff22
+                }
+            },
+            show = !this.showing;
+
+        while(obj) {
+            if(obj.showPhysics) {
+                if(show)
+                    obj.showPhysics(style);
+                else
+                    obj.hidePhysics();
+            }
+
+            obj = obj._iNext;
+        }
+
+        this.game.world._showPhysics = this.showing = show;
     }
 });
 gf.debug.WorldPanel = function (game) {
     gf.debug.Panel.call(this, game);
 
     this.name = 'world';
+    this.title = 'World';
 };
 
 gf.inherits(gf.debug.WorldPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
-        gf.debug.ui.setText(div, this.name);
+        gf.debug.ui.setText(div, 'A minimap of the world, outline your current viewport, stats about the world');
 
         return div;
     }
@@ -341,7 +373,7 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
     this.label = 'ms';
     this.labelPrecision = 0;
     this.labelStyle = 'rgba(200, 200, 200, 0.6)';
-    this.max = 33;
+    this.max = 50;
     this.dataLineWidth = 1;
     this.padding = 5;
 
@@ -409,7 +441,7 @@ gf.inherits(gf.debug.Graph, Object, {
             i = 0,
             box = 10,
             pad = this.padding,
-            lbl = this.labelStyle
+            lbl = this.labelStyle;
 
         for(var k in this.styles) {
             var style = this.styles[k],
@@ -463,10 +495,12 @@ gf.inherits(gf.debug.Graph, Object, {
 });
 //Some general dom helpers
 gf.debug.ui = {
-    bindDelegate: function(dom, evt, cls, fn) {
+    bindDelegate: function(dom, evt, cls, fn, name) {
+        name = name ? name.toUpperCase() : 'DIV';
+
         dom.addEventListener(evt, function(e) {
-            if(e.target && e.target.nodeName === 'div') {
-                var classes = e.target.className.trim().split(' ');
+            if(e.target && e.target.nodeName.toUpperCase() === name) {
+                var classes = e.target.className.split(' ');
 
                 if(classes && classes.indexOf(cls) !== -1) {
                     if(fn) fn(e);
@@ -476,20 +510,20 @@ gf.debug.ui = {
     },
 
     removeClass: function(dom, cls) {
-        var classes = dom.className.trim().split(' '),
+        var classes = dom.className.split(' '),
             i = classes.indexOf(cls);
 
         if(i !== -1) {
             classes.splice(i, 1);
-            dom.className = classes.join(' ');
+            dom.className = classes.join(' ').trim();
         }
     },
 
     addClass: function(dom, cls) {
-        var classes = dom.className.trim().split(' ');
+        var classes = dom.className.split(' ');
 
         classes.push(cls);
-        dom.className += classes.join(' ');
+        dom.className = classes.join(' ').trim();
     },
 
     setText: function(dom, txt) {

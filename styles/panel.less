@@ -22,11 +22,15 @@
 
         //main bar stats
         .gf_debug_stats {
+            float:right !important;
 
             //an item on the stats bar
             .gf_debug_stats_item {
                 float: left;
-                margin-left: 10px;
+                padding: 0 10px;
+                text-align: right;
+                cursor: default;
+                .border_menu_seperator();
 
                 //fps stat item
                 &.fps {}
@@ -35,16 +39,19 @@
                 &.ms {}
 
                 //sprites stat item
-                &.spr {}
+                &.spr {
+                    width: 100px;
+                }
             }
         }
 
         //menu items (to switch between panels)
         .gf_debug_menu_item {
             float: left;
-            padding: 0 0 0 10px;
+            padding: 0 10px;
             height: 32px;
             line-height: 32px;
+            cursor: pointer;
             .border_menu_seperator();
         }
     }

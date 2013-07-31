@@ -2,6 +2,7 @@ gf.debug.WorldPanel = function (game) {
     gf.debug.Panel.call(this, game);
 
     this.name = 'world';
+    this.title = 'World';
 };
 
 gf.inherits(gf.debug.WorldPanel, gf.debug.Panel, {

@@ -77,7 +77,7 @@ gf.inherits(gf.debug.Graph, Object, {
             i = 0,
             box = 10,
             pad = this.padding,
-            lbl = this.labelStyle
+            lbl = this.labelStyle;
 
         for(var k in this.styles) {
             var style = this.styles[k],
