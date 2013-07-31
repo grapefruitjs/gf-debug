@@ -5,11 +5,12 @@
     More info at: http://lesselements.com
   ---------------------------------------------------*/
 .gf_debug {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
   background: #222;
 }
 .gf_debug .gf_debug_menu {
-  position: fixed;
-  bottom: 0;
   height: 32px;
   background: #222222;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #000000), color-stop(1, #333333));
@@ -32,4 +33,5 @@
 }
 .gf_debug .gf_debug_panel {
   display: none;
+  height: 200px;
 }

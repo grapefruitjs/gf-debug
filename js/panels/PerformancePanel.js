@@ -10,15 +10,14 @@ gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
-        gf.debug.ui.setText(div, this.name);
-
-        this.graph = new gf.debug.Graph(div, 1500, 200, {
-            input: 'rgb(80, 80, 80)',
-            camera: 'rgb(80, 80, 220)',
-            physics: 'rgb(80, 220, 80)',
-            render: 'rgb(220, 80, 80)',
+        this.graph = new gf.debug.Graph(div, window.innerWidth, 200, {
+            input: 'rgba(80, 80, 80, 1)',
+            camera: 'rgba(80, 80, 220, 1)',
+            physics: 'rgba(80, 220, 80, 1)',
+            draw: 'rgba(220, 80, 80, 1)',
             event: 'rgba(200, 200, 200, 0.6)'
         });
+        this.graph.max = 33;
 
         return div;
     },
@@ -28,7 +27,7 @@ gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
                 input: t.inputEnd - t.inputStart,
                 camera: t.cameraEnd - t.cameraStart,
                 phys: t.physicsEnd - t.physicsStart,
-                render: t.renderEnd - t.renderStart
+                draw: t.renderEnd - t.renderStart
             },
             evt = this.eventQueue.shift();
 

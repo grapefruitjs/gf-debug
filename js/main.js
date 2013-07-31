@@ -36,6 +36,8 @@ gf.debug.show = function(game) {
         perf: new gf.debug.PerformancePanel(game)
     };
 
+    this.logSpriteCount = false;
+
     //add element to the page
     document.body.appendChild(this.createElement());
 

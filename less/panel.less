@@ -1,12 +1,16 @@
+@bar_height: 32px;
+@panel_height: 200px;
+
 //container
 .gf_debug {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
     .bg_container();
 
     //menu bar
     .gf_debug_menu {
-        position: fixed;
-        bottom: 0;
-        height: 32px;
+        height: @bar_height;
 
         //bar background
         .bg_bar();
@@ -48,6 +52,7 @@
     //panels
     .gf_debug_panel {
         display: none;
+        height: @panel_height;
 
         //the world panel
         &.world {}

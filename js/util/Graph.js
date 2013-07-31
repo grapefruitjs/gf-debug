@@ -13,6 +13,8 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
     this.dataLineWidth = 1;
     this.padding = 5;
 
+    this.keySize = 80;
+
     this.data = [];
     this.styles = dataStyles || {};
 
@@ -27,7 +29,7 @@ gf.inherits(gf.debug.Graph, Object, {
     addData: function(values) {
         this.data.push(values);
 
-        if(this.data.length > (this.canvas.width / this.dataLineWidth))
+        if(this.data.length > ((this.canvas.width - this.keySize) / this.dataLineWidth))
             this.data.shift();
 
         this.redraw();
@@ -36,10 +38,12 @@ gf.inherits(gf.debug.Graph, Object, {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.drawBg();
+        this.drawKey();
         this.drawData();
     },
     drawBg: function() {
         var ctx = this.ctx,
+            minX = this.keySize,
             maxX = this.canvas.width,
             maxY = this.canvas.height,
             step = maxY / 3;
@@ -48,25 +52,44 @@ gf.inherits(gf.debug.Graph, Object, {
 
         //draw top marker line
         ctx.beginPath();
-        ctx.moveTo(0, step);
+        ctx.moveTo(minX, step);
         ctx.lineTo(maxX, step);
         ctx.stroke();
 
         //draw the second marker line
         ctx.beginPath();
-        ctx.moveTo(0, step*2);
+        ctx.moveTo(minX, step*2);
         ctx.lineTo(maxX, step*2);
         ctx.stroke();
 
         //draw baseline marker
         ctx.beginPath();
-        ctx.moveTo(0, maxY);
+        ctx.moveTo(minX, maxY);
         ctx.lineTo(maxX, maxY);
         ctx.stroke();
 
         //draw marker line text
-        ctx.fillText(((this.max / 3)*2).toFixed(this.labelPrecision) + this.label, this.padding, step-this.padding);
-        ctx.fillText((this.max / 3).toFixed(this.labelPrecision) + this.label, this.padding, (step*2)-this.padding);
+        ctx.fillText(((this.max / 3)*2).toFixed(this.labelPrecision) + this.label, minX + this.padding, step-this.padding);
+        ctx.fillText((this.max / 3).toFixed(this.labelPrecision) + this.label, minX + this.padding, (step*2)-this.padding);
+    },
+    drawKey: function() {
+        var ctx = this.ctx,
+            i = 0,
+            box = 10,
+            pad = this.padding,
+            lbl = this.labelStyle
+
+        for(var k in this.styles) {
+            var style = this.styles[k],
+                y = (box * i) + (pad * (i+1));
+
+            ctx.fillStyle = style;
+            ctx.fillRect(pad, y, box, box);
+            ctx.fillStyle = lbl;
+            ctx.fillText(k, pad + box + pad, y + box);
+
+            i++;
+        }
     },
     drawData: function() {
         var ctx = this.ctx,
@@ -78,24 +101,30 @@ gf.inherits(gf.debug.Graph, Object, {
         //iterate backwards through the data drawing from right to left
         for(var i = len - 1; i > -1; --i) {
             var vals = this.data[i],
-                x1 = maxX - ((len - i) * lw), //right - (count * width)
-                x2 = x1-lw,
-                y = maxY;
+                x = maxX - ((len - i) * lw),
+                y = maxY,
+                v,
+                step;
 
             for(var k in vals) {
-                var v = vals[k];
-                if(k === 'event') {
-                    ctx.fillStyle = this.styles.event;
-                    ctx.fillRect(x1, 0, x2, maxY);
-                    ctx.fillText(v, x1+2, this.padding);
-                } else {
-                    var step = maxY - ((v / this.max) * maxY); //bottom - ((prct of max value) * max Y coord)
+                ctx.beginPath();
+                ctx.strokeStyle = ctx.fillStyle = this.styles[k] || this.styles._default;
+                ctx.lineWidth = lw;
 
-                    ctx.fillStyle = this.styles[k] || this.styles._default;
-                    console.log(x1, y, x2, y-step);
-                    debugger;
-                    ctx.fillRect(x1, y, x2, y-=step);
+                v = vals[k];
+                if(k === 'event') {
+                    ctx.moveTo(x, maxY);
+                    ctx.lineTo(x, 0);
+                    ctx.fillText(v, x+this.padding, this.padding*2);
+                } else {
+                    step = ((v / this.max) * maxY);
+                    step = step < 0 ? 0 : step;
+
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x, y-=step);
                 }
+
+                ctx.stroke();
             }
         }
     }
