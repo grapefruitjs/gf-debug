@@ -8,7 +8,7 @@ gf.inherits(gf.debug.PhysicsPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
-        gf.debug.ui.setText(div, this.name);
+        
 
         return div;
     }

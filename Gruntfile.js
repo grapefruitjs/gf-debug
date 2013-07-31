@@ -42,7 +42,7 @@ module.exports = function(grunt) {
         dirs: {
             build: 'build',
             docs: 'docs',
-            less: 'less',
+            less: 'styles',
             src: 'js'
         },
         files: {
