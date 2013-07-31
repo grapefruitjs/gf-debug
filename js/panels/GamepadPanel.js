@@ -8,7 +8,7 @@ gf.inherits(gf.debug.GamepadPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
-        gf.debug.ui.setText(div, this.name);
+        gf.debug.ui.setText(div, 'a gamepad image that shows the current gamepad state');
 
         return div;
     },

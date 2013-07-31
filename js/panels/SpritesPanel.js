@@ -8,7 +8,7 @@ gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
-        gf.debug.ui.setText(div, this.name);
+        gf.debug.ui.setText(div, 'stats about sprite numbers');
 
         return div;
     }
