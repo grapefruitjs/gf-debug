@@ -1,15 +1,28 @@
-.bg_container() {
-    background: #222;
-}
+@background: #111;
+@foreground: #CCC;
+@activeTab: #00bf00;
 
-.bg_bar() {
-    .gradient(#222, #000, #333);
+@gradientRage: 20%;
+@seperatorWidth: 1px;
+
+@accentColor: @activeTab;
+@accentHeight: 3px;
+
+.theme_container() {
+    color: @foreground;
+    background: @background;
+    border-top: @accentHeight solid @accentColor;
 }
 
 .border_menu_seperator() {
-    border-right: 1px solid #333;
+    border-right: @seperatorWidth solid lighten(@background, @gradientRage);
 }
 
-.font_bar() {
-    color: #888;
+.theme_bar() {
+    .gradient(@background, darken(@background, @gradientRage), lighten(@background, @gradientRage));
+}
+
+.theme_item_active() {
+    color: @activeTab;
+    background: @background;
 }

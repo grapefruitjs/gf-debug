@@ -11,13 +11,12 @@ gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
         this.graph = new gf.debug.Graph(div, window.innerWidth, 200, {
-            input: 'rgba(80, 80, 80, 1)',
+            input: 'rgba(80, 220, 80, 1)',
             camera: 'rgba(80, 80, 220, 1)',
-            physics: 'rgba(80, 220, 80, 1)',
             draw: 'rgba(220, 80, 80, 1)',
             event: 'rgba(200, 200, 200, 0.6)'
         });
-        this.graph.max = 100;
+        this.graph.max = 50;
 
         return div;
     },

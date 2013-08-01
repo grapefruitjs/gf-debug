@@ -134,7 +134,7 @@ gf.debug.createMenuStats = function() {
         ms = this._stats.ms = document.createElement('div'),
         spr = this._stats.spr = document.createElement('div');
 
-    this.ui.addClass(div, 'gf_debug_menu_item gf_debug_stats');
+    this.ui.addClass(div, 'gf_debug_stats');
 
     this.ui.addClass(ms, 'gf_debug_stats_item ms');
     this.ui.setHtml(ms, '<span>0</span> ms');
@@ -270,13 +270,12 @@ gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
         this.graph = new gf.debug.Graph(div, window.innerWidth, 200, {
-            input: 'rgba(80, 80, 80, 1)',
+            input: 'rgba(80, 220, 80, 1)',
             camera: 'rgba(80, 80, 220, 1)',
-            physics: 'rgba(80, 220, 80, 1)',
             draw: 'rgba(220, 80, 80, 1)',
             event: 'rgba(200, 200, 200, 0.6)'
         });
-        this.graph.max = 100;
+        this.graph.max = 50;
 
         return div;
     },
@@ -311,6 +310,7 @@ gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this),
             col = document.createElement('div');
 
+        // Show colliders
         gf.debug.ui.addClass(col, 'checkbox');
         gf.debug.ui.setHtml(col,
             '<input type="checkbox" value="None" id="gf_debug_toggleCollisions" class="gf_debug_toggleCollisions" name="check" />' +
@@ -377,7 +377,7 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
     this.dataLineWidth = 1;
     this.padding = 5;
 
-    this.keySize = 80;
+    this.keySize = 115;
 
     this.data = [];
     this.styles = dataStyles || {};
@@ -440,17 +440,20 @@ gf.inherits(gf.debug.Graph, Object, {
         var ctx = this.ctx,
             i = 0,
             box = 10,
+            data = this.data[this.data.length - 1],
             pad = this.padding,
             lbl = this.labelStyle;
 
         for(var k in this.styles) {
             var style = this.styles[k],
-                y = (box * i) + (pad * (i+1));
+                y = (box * i) + (pad * (i+1)),
+                val = typeof data[k] === 'number' ? data[k].toFixed(2) : null,
+                text = k + (val ? ' (' + val + ' ms)' : '');
 
             ctx.fillStyle = style;
             ctx.fillRect(pad, y, box, box);
             ctx.fillStyle = lbl;
-            ctx.fillText(k, pad + box + pad, y + box);
+            ctx.fillText(text, pad + box + pad, y + box);
 
             i++;
         }
@@ -460,7 +463,9 @@ gf.inherits(gf.debug.Graph, Object, {
             maxX = this.canvas.width,
             maxY = this.canvas.height,
             lw = this.dataLineWidth,
-            len = this.data.length;
+            len = this.data.length,
+            numStagger = 0,
+            evtStagger = 25;
 
         //iterate backwards through the data drawing from right to left
         for(var i = len - 1; i > -1; --i) {
@@ -479,7 +484,9 @@ gf.inherits(gf.debug.Graph, Object, {
                 if(k === 'event') {
                     ctx.moveTo(x, maxY);
                     ctx.lineTo(x, 0);
-                    ctx.fillText(v, x+this.padding, this.padding*2);
+                    ctx.fillText(v, x+this.padding, (this.padding*2) + (evtStagger * numStagger));
+                    numStagger++;
+                    numStagger %= 5;
                 } else {
                     step = ((v / this.max) * maxY);
                     step = step < 0 ? 0 : step;

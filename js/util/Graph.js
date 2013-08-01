@@ -13,7 +13,7 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
     this.dataLineWidth = 1;
     this.padding = 5;
 
-    this.keySize = 80;
+    this.keySize = 115;
 
     this.data = [];
     this.styles = dataStyles || {};
@@ -76,17 +76,20 @@ gf.inherits(gf.debug.Graph, Object, {
         var ctx = this.ctx,
             i = 0,
             box = 10,
+            data = this.data[this.data.length - 1],
             pad = this.padding,
             lbl = this.labelStyle;
 
         for(var k in this.styles) {
             var style = this.styles[k],
-                y = (box * i) + (pad * (i+1));
+                y = (box * i) + (pad * (i+1)),
+                val = typeof data[k] === 'number' ? data[k].toFixed(2) : null,
+                text = k + (val ? ' (' + val + ' ms)' : '');
 
             ctx.fillStyle = style;
             ctx.fillRect(pad, y, box, box);
             ctx.fillStyle = lbl;
-            ctx.fillText(k, pad + box + pad, y + box);
+            ctx.fillText(text, pad + box + pad, y + box);
 
             i++;
         }
@@ -96,7 +99,9 @@ gf.inherits(gf.debug.Graph, Object, {
             maxX = this.canvas.width,
             maxY = this.canvas.height,
             lw = this.dataLineWidth,
-            len = this.data.length;
+            len = this.data.length,
+            numStagger = 0,
+            evtStagger = 25;
 
         //iterate backwards through the data drawing from right to left
         for(var i = len - 1; i > -1; --i) {
@@ -115,7 +120,9 @@ gf.inherits(gf.debug.Graph, Object, {
                 if(k === 'event') {
                     ctx.moveTo(x, maxY);
                     ctx.lineTo(x, 0);
-                    ctx.fillText(v, x+this.padding, this.padding*2);
+                    ctx.fillText(v, x+this.padding, (this.padding*2) + (evtStagger * numStagger));
+                    numStagger++;
+                    numStagger %= 5;
                 } else {
                     step = ((v / this.max) * maxY);
                     step = step < 0 ? 0 : step;

@@ -1,35 +1,39 @@
 @bar_height: 32px;
 @panel_height: 200px;
 
+@padding: 10px;
+
 //container
 .gf_debug {
     position: fixed;
     bottom: 0;
     width: 100%;
-    .bg_container();
+    .theme_container();
 
     //menu bar
     .gf_debug_menu {
         height: @bar_height;
 
-        //bar background
-        .bg_bar();
-        .font_bar();
+        .theme_bar();
 
         //head of the menu bar
         .gf_debug_head {
+            cursor: default;
         }
 
         //main bar stats
         .gf_debug_stats {
             float:right !important;
+            padding: 0 0 0 @padding;
+            height: @bar_height;
+            line-height: @bar_height;
+            cursor: default;
 
             //an item on the stats bar
             .gf_debug_stats_item {
                 float: left;
-                padding: 0 10px;
+                padding: 0 @padding;
                 text-align: right;
-                cursor: default;
                 .border_menu_seperator();
 
                 //fps stat item
@@ -41,6 +45,7 @@
                 //sprites stat item
                 &.spr {
                     width: 100px;
+                    border: none;
                 }
             }
         }
@@ -48,11 +53,15 @@
         //menu items (to switch between panels)
         .gf_debug_menu_item {
             float: left;
-            padding: 0 10px;
-            height: 32px;
-            line-height: 32px;
+            padding: 0 @padding;
+            height: @bar_height;
+            line-height: @bar_height;
             cursor: pointer;
             .border_menu_seperator();
+
+            &.active {
+                .theme_item_active();
+            }
         }
     }
 

@@ -16,46 +16,71 @@ Based on: http://cssdeck.com/labs/css-checkbox-styles
     background: linear-gradient(top, @one 0%, @two 40%, @three 100%);
 }
 
+/* Status Orb (checkbox replacement) */
+@cb_ring: #fcfef4;
+@cb_ring_start: #dfe5d7;
+@cb_ring_stop: #b3bead;
+
+@cb_active: #00bf00;
+@cb_active_start: #00bf00;
+@cb_active_stop: #009400;
+
+@cb_inner: #222;
+@cb_inner_start: #222;
+@cb_inner_stop: #45484d;
+
+@cb_ring_size: 4px;
+@cb_inner_space: 2px;
+@cb_active_size: 16px;
+
+@cb_label_size: @cb_active_size + (@cb_inner_space * 2);
+@cb_box_size: @cb_label_size + (@cb_ring_size * 2);
+@cb_radius: @cb_box_size * 2;
+
+@cb_accent_start: white;
+@cb_accent_stop: rgba(0,0,0,0.5);
+
+@cb_label_width: 250px;
+@cb_label_font_size: 1.1em;
+
 input[type=checkbox] {
     visibility: hidden;
 }
 
-/* Status Orb (checkbox replacement) */
 .checkbox {
     position: relative;
-    width: 28px;
-    height: 28px;
-    background: #fcfff4;
-    margin: 5px;
+    width: @cb_box_size;
+    height: @cb_box_size;
+    background: @cb_ring;
 
-    .gradit(#fcfff4, #dfe5d7, #b3bead);
-    .rounded(50px);
-    .boxit(white, rgba(0,0,0,0.5));
+    .gradit(@cb_ring, @cb_ring_start, @cb_ring_stop);
+    .rounded(@cb_radius);
+    .boxit(@cb_accent_start, @cb_accent_stop);
 
     label {
         cursor: pointer;
         position: absolute;
-        width: 20px;
-        height: 20px;
-        left: 4px;
-        top: 4px;
+        width: @cb_label_size;
+        height: @cb_label_size;
+        left: @cb_ring_size;
+        top: @cb_ring_size;
 
-        .gradient(#222, #222, #45484d);
-        .rounded(50px);
-        .boxit(rgba(0,0,0,0.5), white); //0px 1px 0px white
+        .gradient(@cb_inner, @cb_inner_start, @cb_inner_stop);
+        .rounded(@cb_radius);
+        .boxit(@cb_accent_stop, @cb_accent_start);
 
         &:after {
             opacity: 0;
             content: '';
             position: absolute;
-            width: 16px;
-            height: 16px;
-            top: 2px;
-            left: 2px;
+            width: @cb_active_size;
+            height: @cb_active_size;
+            top: @cb_inner_space;
+            left: @cb_inner_space;
 
-            .gradient(#00bf00, #00bf00, #009400);
-            .rounded(50px);
-            .boxit(white, rgba(0,0,0,0.5));
+            .gradient(@cb_active, @cb_active_start, @cb_active_start);
+            .rounded(@cb_radius);
+            .boxit(@cb_accent_start, @cb_accent_stop);
         }
 
         &:hover::after {
@@ -66,11 +91,11 @@ input[type=checkbox] {
     span {
         position: relative;
         display: block;
-        top: -15px;
-        left: 35px;
-        width: 250px;
-        color: #fcfff4;
-        font-size: 1.1em;
+        top: -@cb_active_size;
+        left: @cb_box_size + @cb_ring_size;
+        width: @cb_label_width;
+        color: @cb_ring;
+        font-size: @cb_label_font_size;
     }
 
     input[type=checkbox]:checked + label:after {

@@ -10,6 +10,7 @@ gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this),
             col = document.createElement('div');
 
+        // Show colliders
         gf.debug.ui.addClass(col, 'checkbox');
         gf.debug.ui.setHtml(col,
             '<input type="checkbox" value="None" id="gf_debug_toggleCollisions" class="gf_debug_toggleCollisions" name="check" />' +

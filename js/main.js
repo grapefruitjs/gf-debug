@@ -120,7 +120,7 @@ gf.debug.createMenuStats = function() {
         ms = this._stats.ms = document.createElement('div'),
         spr = this._stats.spr = document.createElement('div');
 
-    this.ui.addClass(div, 'gf_debug_menu_item gf_debug_stats');
+    this.ui.addClass(div, 'gf_debug_stats');
 
     this.ui.addClass(ms, 'gf_debug_stats_item ms');
     this.ui.setHtml(ms, '<span>0</span> ms');
