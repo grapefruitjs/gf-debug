@@ -32,9 +32,9 @@ gf.inherits(gf.debug.Graph, Object, {
         if(this.data.length > ((this.canvas.width - this.keySize) / this.dataLineWidth))
             this.data.shift();
 
-        this.redraw();
+        this.render();
     },
-    redraw: function() {
+    render: function() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.drawBg();

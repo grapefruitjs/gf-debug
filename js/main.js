@@ -5,11 +5,24 @@ var d = {
 
     //the version of gf that is required for this plugin to function correctly.
     //Placed in by grunt when built you can change this value in the package.json (under engines.gf)
-    gfVersion: '@@GF_VERSION'
+    gfVersion: '@@GF_VERSION',
+
+    onTick: function() {
+        this._super();
+
+        gf.debug.statsTick();
+
+        if(gf.debug.panels) {
+            gf.debug.panels.map.tick();
+            gf.debug.panels.performance.tick();
+            gf.debug.panels.gamepad.tick();
+        }
+    }
 };
 
 //register the plugin to grapefruit
 gf.plugin.register(d, 'debug');
+gf.plugin.patch(gf.Game, '_tick', gf.debug.onTick);
 
 /**
  * Shows the debug bar using the specified game information
@@ -26,12 +39,8 @@ gf.debug.show = function(game) {
 
     this.game = game;
 
-    setInterval(function() {
-        gf.debug._onTick();
-    }, 75);
-
     this.panels = {
-        world: new gf.debug.WorldPanel(game),
+        map: new gf.debug.MapPanel(game),
         sprites: new gf.debug.SpritesPanel(game),
         gamepad: new gf.debug.GamepadPanel(game),
         performance: new gf.debug.PerformancePanel(game)
@@ -108,7 +117,7 @@ gf.debug.createElement = function() {
 gf.debug.createMenuHead = function() {
     var div = document.createElement('div');
 
-    this.ui.addClass(div, 'gf_debug_menu_item gf_debug_head');
+    this.ui.addClass(div, 'gf_debug_head');
     this.ui.setText(div, 'Gf Debug:');
 
     return div;
@@ -137,14 +146,6 @@ gf.debug.createMenuStats = function() {
     div.appendChild(spr);
 
     return div;
-};
-
-gf.debug.timer = (window.performance && window.performance.now) ? window.performance : Date;
-
-gf.debug._onTick = function() {
-    this.statsTick();
-    this.panels.performance.tick();
-    this.panels.gamepad.tick();
 };
 
 gf.debug.statsTick = function() {
@@ -184,4 +185,4 @@ setInterval(function() {
         if(gf.debug.logSpriteCount)
             gf.debug.logEvent('debug_count_sprites');
     }
-}, 1000);
+}, 2000);

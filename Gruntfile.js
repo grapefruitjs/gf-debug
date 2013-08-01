@@ -17,8 +17,9 @@ module.exports = function(grunt) {
         '<%= dirs.src %>/panels/PerformancePanel.js',
         '<%= dirs.src %>/panels/PhysicsPanel.js',
         '<%= dirs.src %>/panels/SpritesPanel.js',
-        '<%= dirs.src %>/panels/WorldPanel.js',
+        '<%= dirs.src %>/panels/MapPanel.js',
         '<%= dirs.src %>/util/Graph.js',
+        '<%= dirs.src %>/util/Minimap.js',
         '<%= dirs.src %>/util/ui.js'
     ],
     banner = [

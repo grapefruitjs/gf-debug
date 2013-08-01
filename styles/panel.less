@@ -18,16 +18,19 @@
 
         //head of the menu bar
         .gf_debug_head {
-            cursor: default;
+            float: left;
+            padding: 0 @padding;
+            height: @bar_height;
+            line-height: @bar_height;
+            .border_menu_seperator();
         }
 
         //main bar stats
         .gf_debug_stats {
-            float:right !important;
+            float:right;
             padding: 0 0 0 @padding;
             height: @bar_height;
             line-height: @bar_height;
-            cursor: default;
 
             //an item on the stats bar
             .gf_debug_stats_item {
@@ -69,6 +72,7 @@
     .gf_debug_panel {
         display: none;
         height: @panel_height;
+        overflow: auto;
 
         //the world panel
         &.world {}
