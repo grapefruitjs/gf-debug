@@ -25,8 +25,10 @@ gf.debug.show = function(game) {
         throw 'Already debugging a game instance!';
 
     this.game = game;
-    this.game.on('beforetick', this._beforeTick.bind(this));
-    this.game.on('aftertick', this._afterTick.bind(this));
+
+    setInterval(function() {
+        gf.debug._onTick();
+    }, 75);
 
     this.panels = {
         world: new gf.debug.WorldPanel(game),
@@ -139,20 +141,14 @@ gf.debug.createMenuStats = function() {
 
 gf.debug.timer = (window.performance && window.performance.now) ? window.performance : Date;
 
-gf.debug._beforeTick = function() {
-    this._tickStart = this.timer.now();
-};
-
-gf.debug._afterTick = function() {
+gf.debug._onTick = function() {
     this.statsTick();
     this.panels.performance.tick();
     this.panels.gamepad.tick();
 };
 
 gf.debug.statsTick = function() {
-    this._tickEnd = this.timer.now();
-
-    var ms = this._tickEnd - this._tickStart,
+    var ms = this.game.timings.tickEnd - this.game.timings.tickStart,
         fps = 1000/ms;
 
     fps = fps > 60 ? 60 : fps;
@@ -162,7 +158,7 @@ gf.debug.statsTick = function() {
     this.ui.setText(this._stats.fps.firstElementChild, fps.toFixed(2));
 };
 
-//update the number of sprites every seconds (instead of every frame)
+//update the number of sprites every couple seconds (instead of every frame)
 //since it is so expensive
 setInterval(function() {
     if(gf.debug._stats && gf.debug._stats.spr) {
