@@ -1,27 +1,29 @@
-var d = {
-    //the version of this plugin. Placed in by grunt when built you can change
-    //this value in the package.json (under version)
-    version: '@@VERSION',
-
-    //the version of gf that is required for this plugin to function correctly.
-    //Placed in by grunt when built you can change this value in the package.json (under engines.gf)
-    gfVersion: '@@GF_VERSION',
-
-    onTick: function() {
-        this._super();
-
-        gf.debug.statsTick();
-
-        if(gf.debug.panels) {
-            gf.debug.panels.map.tick();
-            gf.debug.panels.performance.tick();
-            gf.debug.panels.gamepad.tick();
-        }
-    }
-};
-
 //register the plugin to grapefruit
-gf.plugin.register(d, 'debug');
+gf.plugin.register({}, 'debug');
+
+//the version of this plugin. Placed in by grunt when built you can change
+//this value in the package.json (under version)
+gf.debug.version: '@@VERSION',
+
+//the version of gf that is required for this plugin to function correctly.
+//Placed in by grunt when built you can change this value in the package.json (under engines.gf)
+gf.debug.gfVersion: '@@GF_VERSION',
+
+//on tick funciton to replace the gf.Game.prototype._tick function with
+//will call _super to run the normal tick, then tick the panels as well
+gf.debug.onTick: function() {
+    this._super();
+
+    gf.debug._statsTick();
+
+    if(gf.debug.panels) {
+        gf.debug.panels.map.tick();
+        gf.debug.panels.performance.tick();
+        gf.debug.panels.gamepad.tick();
+    }
+}
+
+//patch the tick method
 gf.plugin.patch(gf.Game, '_tick', gf.debug.onTick);
 
 /**
@@ -49,9 +51,9 @@ gf.debug.show = function(game) {
     this.logSpriteCount = false;
 
     //add element to the page
-    document.body.appendChild(this.createElement());
+    document.body.appendChild(this._createElement());
 
-    this.bindEvents();
+    this._bindEvents();
 };
 
 /**
@@ -66,7 +68,7 @@ gf.debug.logEvent = function(name) {
         this.panels.performance.logEvent(name);
 };
 
-gf.debug.bindEvents = function() {
+gf.debug._bindEvents = function() {
     var activePanel,
         self = this;
 
@@ -92,7 +94,7 @@ gf.debug.bindEvents = function() {
     });
 };
 
-gf.debug.createElement = function() {
+gf.debug._createElement = function() {
     var c = this._container = document.createElement('div'),
         bar = this._bar = document.createElement('div');
 
@@ -102,8 +104,8 @@ gf.debug.createElement = function() {
 
     //the menu bar
     this.ui.addClass(bar, 'gf_debug_menu');
-    bar.appendChild(this.createMenuHead());
-    bar.appendChild(this.createMenuStats());
+    bar.appendChild(this._createMenuHead());
+    bar.appendChild(this._createMenuStats());
 
     //add the panels
     for(var p in this.panels) {
@@ -114,7 +116,7 @@ gf.debug.createElement = function() {
     return c;
 };
 
-gf.debug.createMenuHead = function() {
+gf.debug._createMenuHead = function() {
     var div = document.createElement('div');
 
     this.ui.addClass(div, 'gf_debug_head');
@@ -123,7 +125,7 @@ gf.debug.createMenuHead = function() {
     return div;
 };
 
-gf.debug.createMenuStats = function() {
+gf.debug._createMenuStats = function() {
     this._stats = {};
 
     var div = document.createElement('div'),
@@ -148,7 +150,7 @@ gf.debug.createMenuStats = function() {
     return div;
 };
 
-gf.debug.statsTick = function() {
+gf.debug._statsTick = function() {
     var ms = this.game.timings.tickEnd - this.game.timings.tickStart,
         fps = 1000/ms;
 
