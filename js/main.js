@@ -48,7 +48,7 @@ gf.debug.show = function(game) {
     //patch the tick method
     gf.plugin.patch(gf.Game, '_tick', this.onTick);
 
-    this.logSpriteCount = false;
+    this.logObjectCountEvent = false;
 
     //add element to the page
     document.body.appendChild(this._createElement());
@@ -125,7 +125,7 @@ gf.debug._createMenuHead = function() {
     var div = document.createElement('div');
 
     this.ui.addClass(div, 'gf_debug_head');
-    this.ui.setText(div, 'Gf Debug:');
+    this.ui.setText(div, 'Gf Debug (' + this.game.renderMethod + '):');
 
     return div;
 };
@@ -136,7 +136,7 @@ gf.debug._createMenuStats = function() {
     var div = document.createElement('div'),
         fps = this._stats.fps = document.createElement('div'),
         ms = this._stats.ms = document.createElement('div'),
-        spr = this._stats.spr = document.createElement('div');
+        obj = this._stats.obj = document.createElement('div');
 
     this.ui.addClass(div, 'gf_debug_stats');
 
@@ -148,9 +148,9 @@ gf.debug._createMenuStats = function() {
     this.ui.setHtml(fps, '<span>0</span> fps');
     div.appendChild(fps);
 
-    this.ui.addClass(spr, 'gf_debug_stats_item spr');
-    this.ui.setHtml(spr, '<span>0</span> sprites');
-    div.appendChild(spr);
+    this.ui.addClass(obj, 'gf_debug_stats_item obj');
+    this.ui.setHtml(obj, '<span>0</span> objects');
+    div.appendChild(obj);
 
     return div;
 };
@@ -169,8 +169,8 @@ gf.debug._statsTick = function() {
 //update the number of sprites every couple seconds (instead of every frame)
 //since it is so expensive
 setInterval(function() {
-    if(gf.debug._stats && gf.debug._stats.spr) {
-        //count sprites in active state
+    if(gf.debug._stats && gf.debug._stats.obj) {
+        //count objects in active state
         var c = 0,
             s = gf.debug.game.activeState,
             wld = s.world,
@@ -186,10 +186,10 @@ setInterval(function() {
             cam = cam._iNext;
         }
 
-        gf.debug.ui.setText(gf.debug._stats.spr.firstElementChild, c);
+        gf.debug.ui.setText(gf.debug._stats.obj.firstElementChild, c);
 
         //log the event to the performance graph
-        if(gf.debug.logSpriteCount)
-            gf.debug.logEvent('debug_count_sprites');
+        if(gf.debug.logObjectCountEvent)
+            gf.debug.logEvent('debug_count_objects');
     }
 }, 2000);
