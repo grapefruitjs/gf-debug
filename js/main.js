@@ -3,15 +3,15 @@ gf.plugin.register({}, 'debug');
 
 //the version of this plugin. Placed in by grunt when built you can change
 //this value in the package.json (under version)
-gf.debug.version: '@@VERSION',
+gf.debug.version = '@@VERSION';
 
 //the version of gf that is required for this plugin to function correctly.
 //Placed in by grunt when built you can change this value in the package.json (under engines.gf)
-gf.debug.gfVersion: '@@GF_VERSION',
+gf.debug.gfVersion = '@@GF_VERSION';
 
 //on tick funciton to replace the gf.Game.prototype._tick function with
 //will call _super to run the normal tick, then tick the panels as well
-gf.debug.onTick: function() {
+gf.debug.onTick = function() {
     this._super();
 
     gf.debug._statsTick();
@@ -21,10 +21,7 @@ gf.debug.onTick: function() {
         gf.debug.panels.performance.tick();
         gf.debug.panels.gamepad.tick();
     }
-}
-
-//patch the tick method
-gf.plugin.patch(gf.Game, '_tick', gf.debug.onTick);
+};
 
 /**
  * Shows the debug bar using the specified game information
@@ -47,6 +44,9 @@ gf.debug.show = function(game) {
         gamepad: new gf.debug.GamepadPanel(game),
         performance: new gf.debug.PerformancePanel(game)
     };
+
+    //patch the tick method
+    gf.plugin.patch(gf.Game, '_tick', this.onTick);
 
     this.logSpriteCount = false;
 
@@ -87,6 +87,11 @@ gf.debug._bindEvents = function() {
                 return;
             }
         }
+
+        if(panel.name === 'performance')
+            panel.active = true;
+        else
+            self.panels.performance.active = false;
 
         self.ui.addClass(e.target, 'active');
         panel.toggle();

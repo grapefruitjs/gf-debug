@@ -6,6 +6,23 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
 
     this.ctx = this.canvas.getContext('2d');
 
+    //setup data canvases, these are used to prerender the data graph
+    //and having two of them allows me to clear one with the other takes
+    //up the entire graph, so I have "wrap" the graph around to get more
+    this.dataCanvases = [
+        document.createElement('canvas'),
+        document.createElement('canvas')
+    ];
+    this.dataCtxs = [
+        this.dataCanvases[0].getContext('2d'),
+        this.dataCanvases[1].getContext('2d')
+    ];
+    this.dataScroll = [
+        0,
+        0
+    ];
+    this.dataIndex = 0;
+
     this.label = 'ms';
     this.labelPrecision = 0;
     this.labelStyle = 'rgba(200, 200, 200, 0.6)';
@@ -14,6 +31,9 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
     this.padding = 5;
 
     this.keySize = 115;
+
+    this.dataCanvases[0].width = this.dataCanvases[1].width = width - this.keySize;
+    this.dataCanvases[0].height = this.dataCanvases[1].height = height;
 
     this.data = [];
     this.styles = dataStyles || {};
@@ -36,6 +56,8 @@ gf.inherits(gf.debug.Graph, Object, {
     },
     render: function() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.updateData();
 
         this.drawBg();
         this.drawKey();
@@ -95,44 +117,75 @@ gf.inherits(gf.debug.Graph, Object, {
         }
     },
     drawData: function() {
-        var ctx = this.ctx,
-            maxX = this.canvas.width,
-            maxY = this.canvas.height,
-            lw = this.dataLineWidth,
-            len = this.data.length,
-            numStagger = 0,
-            evtStagger = 25;
+        var i = this.dataIndex,
+            ni = this.dataIndex ? 0 : 1,
+            c1 = this.dataCanvases[i],
+            s1 = this.dataScroll[i],
+            c2 = this.dataCanvases[ni],
+            s2 = this.dataScroll[ni],
+            w = c1.width,
+            h = c1.height;
 
-        //iterate backwards through the data drawing from right to left
-        for(var i = len - 1; i > -1; --i) {
-            var vals = this.data[i],
-                x = maxX - ((len - i) * lw),
-                y = maxY,
-                v,
-                step;
+        //draw on prerender of data
+        this.ctx.drawImage(
+            c1,
+            0, //sx
+            0, //sy
+            s1, //sw
+            h, //sh
+            w - s1 + this.keySize, //dx
+            0, //dy
+            s1,
+            h
+        );
+        this.ctx.drawImage(
+            c2,
+            s2 - w, //sx
+            0, //sy
+            w - (s2 - w), //sw
+            h, //sh
+            this.keySize, //dx
+            0, //dy
+            w - (s2 - w), //dw
+            h //dh
+        );
 
-            for(var k in vals) {
-                ctx.beginPath();
-                ctx.strokeStyle = ctx.fillStyle = this.styles[k] || this.styles._default;
-                ctx.lineWidth = lw;
-
-                v = vals[k];
-                if(k === 'event') {
-                    ctx.moveTo(x, maxY);
-                    ctx.lineTo(x, 0);
-                    ctx.fillText(v, x+this.padding, (this.padding*2) + (evtStagger * numStagger));
-                    numStagger++;
-                    numStagger %= 5;
-                } else {
-                    step = ((v / this.max) * maxY);
-                    step = step < 0 ? 0 : step;
-
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x, y-=step);
-                }
-
-                ctx.stroke();
-            }
+        if(w === s1) {
+            this.dataScroll[ni] = this.dataLineWidth;
+            this.dataCtxs[ni].clearRect(0, 0, w, h);
+            this.dataIndex = ni;
         }
+    },
+    //draw the latest data point into the dataCanvas
+    updateData: function() {
+        var ctx = this.dataCtxs[this.dataIndex],
+            x = this.dataScroll[this.dataIndex],
+            maxY = this.dataCanvases[this.dataIndex].height,
+            lw = this.dataLineWidth,
+            vals = this.data[this.data.length - 1],
+            v = 0, step = 0, y = maxY;
+
+        for(var k in vals) {
+            ctx.beginPath();
+            ctx.strokeStyle = ctx.fillStyle = this.styles[k] || this.styles._default;
+            ctx.lineWidth = lw;
+
+            v = vals[k];
+            if(k === 'event') {
+                ctx.moveTo(x, maxY);
+                ctx.lineTo(x, 0);
+                ctx.fillText(v, x+this.padding, (this.padding*2));
+            } else {
+                step = ((v / this.max) * maxY);
+                step = step < 0 ? 0 : step;
+
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y-=step);
+            }
+
+            ctx.stroke();
+        }
+        this.dataScroll[0] += lw;
+        this.dataScroll[1] += lw;
     }
 });
