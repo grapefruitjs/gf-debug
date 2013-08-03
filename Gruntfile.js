@@ -129,7 +129,8 @@ module.exports = function(grunt) {
                 /* Globals */
                 undef: true,
                 globals: {
-                    gf: false
+                    gf: false,
+                    PIXI: false
                 }
             }
         },
