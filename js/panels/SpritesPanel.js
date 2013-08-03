@@ -3,6 +3,21 @@ gf.debug.SpritesPanel = function(game) {
 
     this.name = 'sprites';
     this.title = 'Sprites';
+
+    this.gfx = new PIXI.Graphics();
+
+    this.style = {
+        _default: {
+            size: 1,
+            color: 0xff2222,
+            alpha: 1
+        },
+        sensor: {
+            size: 1,
+            color: 0x22ff22,
+            alpha: 1
+        }
+    };
 };
 
 gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
@@ -23,26 +38,58 @@ gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
         return div;
     },
     toggleCollisions: function() {
-        var obj = this.game.stage,
-            style = {
-                color: 0xff2222,
-                sensor: {
-                    color: 0x22ff22
-                }
-            },
-            show = !this.showing;
+        this.showing = !this.showing;
 
-        while(obj) {
-            if(obj.showPhysics) {
-                if(show)
-                    obj.showPhysics(style);
-                else
-                    obj.hidePhysics();
-            }
-
-            obj = obj._iNext;
+        if(this.showing) {
+            this.game.world.addChild(this.gfx);
+            this._drawPhysics();
+        } else {
+            if(this.gfx.parent)
+                this.gfx.parent.removeChild(this.gfx);
         }
+    },
+    tick: function() {
+        if(this.showing) {
+            this._drawPhysics();
+        }
+    },
+    _drawPhysics: function() {
+        var self = this,
+            g = this.gfx;
 
-        this.game.world._showPhysics = this.showing = show;
+        this.gfx.clear();
+        this.game.physics.space.eachShape(function(shape) {
+            if(!shape.body) return;
+
+            var body = shape.body,
+                p = body.p,
+                style = shape.sensor ? self.style.sensor : self.style._default;
+
+            g.lineStyle(style.size, style.color, style.alpha);
+
+            //circle
+            if(shape.type === 'circle') {
+                var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
+                    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
+
+                g.drawCircle(cx, cy, shape.r);
+            }
+            //polygon
+            else {
+                var sx = shape.verts[0],
+                    sy = shape.verts[1];
+
+                g.moveTo(p.x + sx, p.y + sy);
+
+                for(var i = 2; i < shape.verts.length; i+=2) {
+                    g.lineTo(
+                        p.x + shape.verts[i],
+                        p.y + shape.verts[i + 1]
+                    );
+                }
+
+                g.lineTo(p.x + sx, p.y + sy);
+            }
+        });
     }
 });
