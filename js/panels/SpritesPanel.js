@@ -23,6 +23,7 @@ gf.debug.SpritesPanel = function(game) {
 gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this),
+            pad = document.createElement('div'),
             col = document.createElement('div');
 
         // Show colliders
@@ -33,7 +34,9 @@ gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
             '<span>Show sprite colliders</span>'
         );
         gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleCollisions', this.toggleCollisions.bind(this), 'input');
-        div.appendChild(col);
+        pad.appendChild(col);
+
+        div.appendChild(pad);
 
         return div;
     },

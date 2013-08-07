@@ -1,5 +1,5 @@
 @bar_height: 32px;
-@panel_height: 200px;
+@panel_height: 250px;
 
 @padding: 10px;
 
@@ -78,7 +78,11 @@
         &.world {}
 
         //the sprites panel
-        &.sprites {}
+        &.sprites {
+            > div {
+                padding: 25px 50px;
+            }
+        }
 
         //the physics panel
         &.physics {}

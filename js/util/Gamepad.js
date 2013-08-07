@@ -1,63 +1,13 @@
 //based on: http://www.html5rocks.com/en/tutorials/doodles/gamepad/
-var STICK_OFFSET: 25;
-
-gf.debug.Gamepad = function() {
-    var el = this.element = document.createElement('div');
-    el.innerHtml = template;
-
-    this.update(status);
-};
-
-gf.inherits(gf.debug.Gamepad, Object, {
-    updateButton: function(status) {
-        var buttonEl = this.el.querySelector('[name="' + btnIds[status.code] + '"]'),
-            labelEl = this.el.querySelector('label[for="' + btnIds[status.code] + '"]');
-
-        labelEl.innerHTML = status.value.toFixed(2);
-
-        if(status.down) {
-            buttonEl.classList.add('pressed');
-            labelEl.classList.add('visible');
-        } else {
-            buttonEl.classList.remove('pressed');
-            labelEl.classList.remove('visible');
-        }
-    },
-    updateAxis: function(status) {
-        var stickEl = this.el..querySelector('[name="' + axisIds[status.code][1] + '"]'),
-            labelEl = gamepadEl.querySelector('label[for="' + axisIds[status.code][0] + '"]'),
-            offsetVal = status.value * STICK_OFFSET;
-
-        if(status.code === gf.input.GP_AXIS.LEFT_ANALOGUE_HOR || status.code === gf.input.GP_AXIS.RIGHT_ANALOGUE_HOR) {
-            stickEl.style.marginLeft = offsetVal + 'px';
-        } else {
-            stickEl.style.marginTop = offsetVal + 'px';
-        }
-
-        labelEl.innerHTML = value.toFixed(2);
-        if(status.value !== 0) {
-            labelEl.classList.add('visible');
-            if (status.value > 0) {
-                labelEl.classList.add('positive');
-            } else {
-                labelEl.classList.add('negative');
-            }
-        } else {
-            labelEl.classList.remove('visible');
-            labelEl.classList.remove('positive');
-            labelEl.classList.remove('negative');
-        }
-    }
-});
-
-var btnIds = [
+var STICK_OFFSET = 10,
+btnIds = [
     'button-1',
     'button-2',
     'button-3',
     'button-4',
     'button-left-shoulder-top',
-    'button-left-shoulder-bottom',
     'button-right-shoulder-top',
+    'button-left-shoulder-bottom',
     'button-right-shoulder-bottom',
     'button-select',
     'button-start',
@@ -74,7 +24,7 @@ axisIds = [
     ['stick-2-axis-x', 'stick-2'],
     ['stick-2-axis-y', 'stick-2']
 ],
-template = 
+template =
 '<div class="gf_debug_gp_buttons">' +
     '<div class="gf_debug_gp_face" name="button-1"></div>' +
     '<div class="gf_debug_gp_face" name="button-2"></div>' +
@@ -114,4 +64,53 @@ template =
     '<label for="stick-1-axis-y">?</label>' +
     '<label for="stick-2-axis-x">?</label>' +
     '<label for="stick-2-axis-y">?</label>' +
-'</div>';
+'</div>' +
+'<div class="gf_debug_gp_name">Grapefruit</div>';
+
+gf.debug.Gamepad = function() {
+    var el = this.element = document.createElement('div');
+    el.classList.add('gf_debug_gp');
+    el.innerHTML = template;
+};
+
+gf.inherits(gf.debug.Gamepad, Object, {
+    updateButton: function(status) {
+        var buttonEl = this.element.querySelector('[name="' + btnIds[status.code] + '"]'),
+            labelEl = this.element.querySelector('label[for="' + btnIds[status.code] + '"]');
+
+        labelEl.innerHTML = status.value.toFixed(2);
+
+        if(status.down) {
+            buttonEl.classList.add('pressed');
+            labelEl.classList.add('visible');
+        } else {
+            buttonEl.classList.remove('pressed');
+            labelEl.classList.remove('visible');
+        }
+    },
+    updateAxis: function(status) {
+        var stickEl = this.element.querySelector('[name="' + axisIds[status.code][1] + '"]'),
+            labelEl = this.element.querySelector('label[for="' + axisIds[status.code][0] + '"]'),
+            offsetVal = status.value * STICK_OFFSET;
+
+        if(status.code === gf.input.GP_AXIS.LEFT_ANALOGUE_HOR || status.code === gf.input.GP_AXIS.RIGHT_ANALOGUE_HOR) {
+            stickEl.style.marginLeft = offsetVal + 'px';
+        } else {
+            stickEl.style.marginTop = offsetVal + 'px';
+        }
+
+        labelEl.innerHTML = status.value.toFixed(2);
+        if(status.value !== 0) {
+            labelEl.classList.add('visible');
+            if (status.value > 0) {
+                labelEl.classList.add('positive');
+            } else {
+                labelEl.classList.add('negative');
+            }
+        } else {
+            labelEl.classList.remove('visible');
+            labelEl.classList.remove('positive');
+            labelEl.classList.remove('negative');
+        }
+    }
+});

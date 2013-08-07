@@ -11,7 +11,7 @@ gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
-        this.graph = new gf.debug.Graph(div, window.innerWidth, 200, {
+        this.graph = new gf.debug.Graph(div, window.innerWidth - 10, 250 - 5, {
             input: 'rgba(80, 220, 80, 1)',
             camera: 'rgba(80, 80, 220, 1)',
             phys: 'rgba(80, 220, 200, 1)',

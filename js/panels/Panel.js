@@ -9,6 +9,7 @@ gf.inherits(gf.debug.Panel, Object, {
     createPanelElement: function() {
         var div = this._panel = document.createElement('div');
         gf.debug.ui.addClass(div, 'gf_debug_panel');
+        gf.debug.ui.addClass(div, this.name);
 
         return div;
     },

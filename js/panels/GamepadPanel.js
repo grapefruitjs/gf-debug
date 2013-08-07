@@ -5,7 +5,6 @@ gf.debug.GamepadPanel = function(game) {
     this.title = 'Gamepad';
 
     this.gamepad = new gf.debug.Gamepad();
-    this.firstEvent = true;
     this.bindEvents();
 };
 
@@ -14,32 +13,36 @@ gf.inherits(gf.debug.GamepadPanel, gf.debug.Panel, {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
         div.appendChild(this.gamepad.element);
+        window.console.log(this.gamepad.element);
 
         return div;
     },
     bindEvents: function() {
+        var game = this.game,
+            pad = this.gamepad;
+
         //bind all buttons
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_1, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_2, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_3, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_4, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.LEFT_SHOULDER, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.RIGHT_SHOULDER, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.LEFT_TRIGGER, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.RIGHT_TRIGGER, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.SELECT, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.START, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.LEFT_ANALOGUE_STICK, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.RIGHT_ANALOGUE_STICK, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_TOP, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_BOTTOM, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_LEFT, this.gamepad.updateButton.bind(this));
-        this.game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_RIGHT, this.gamepad.updateButton.bind(this));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_1, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_2, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_3, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_4, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.LEFT_SHOULDER, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.RIGHT_SHOULDER, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.LEFT_TRIGGER, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.RIGHT_TRIGGER, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.SELECT, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.START, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.LEFT_ANALOGUE_STICK, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.RIGHT_ANALOGUE_STICK, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_TOP, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_BOTTOM, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_LEFT, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_RIGHT, pad.updateButton.bind(pad));
 
         //bind all sticks
-        this.game.input.gamepad.sticks.on(gf.input.GP_AXIS.LEFT_ANALOGUE_HOR, this.gamepad.updateStick.bind(this));
-        this.game.input.gamepad.sticks.on(gf.input.GP_AXIS.LEFT_ANALOGUE_VERT, this.gamepad.updateStick.bind(this));
-        this.game.input.gamepad.sticks.on(gf.input.GP_AXIS.RIGHT_ANALOGUE_HOR, this.gamepad.updateStick.bind(this));
-        this.game.input.gamepad.sticks.on(gf.input.GP_AXIS.RIGHT_ANALOGUE_VERT, this.gamepad.updateStick.bind(this));
+        game.input.gamepad.sticks.on(gf.input.GP_AXIS.LEFT_ANALOGUE_HOR, pad.updateAxis.bind(pad));
+        game.input.gamepad.sticks.on(gf.input.GP_AXIS.LEFT_ANALOGUE_VERT, pad.updateAxis.bind(pad));
+        game.input.gamepad.sticks.on(gf.input.GP_AXIS.RIGHT_ANALOGUE_HOR, pad.updateAxis.bind(pad));
+        game.input.gamepad.sticks.on(gf.input.GP_AXIS.RIGHT_ANALOGUE_VERT, pad.updateAxis.bind(pad));
     }
 });

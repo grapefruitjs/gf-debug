@@ -19,7 +19,6 @@ gf.debug.onTick = function() {
     if(gf.debug.panels) {
         gf.debug.panels.map.tick();
         gf.debug.panels.performance.tick();
-        gf.debug.panels.gamepad.tick();
         gf.debug.panels.sprites.tick();
     }
 };

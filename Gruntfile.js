@@ -20,6 +20,7 @@ module.exports = function(grunt) {
         '<%= dirs.src %>/panels/MapPanel.js',
         '<%= dirs.src %>/util/Graph.js',
         '<%= dirs.src %>/util/Minimap.js',
+        '<%= dirs.src %>/util/Gamepad.js',
         '<%= dirs.src %>/util/ui.js'
     ],
     banner = [
