@@ -1,230 +1,209 @@
-.gf_debug_gp
-{
-  list-style:none;
-  white-space:nowrap;
-  text-align:center;
-  margin:50px 0 0;
-  padding:0;
-}
+@gp_sprite: url('gamepad.png');
 
-.gf_debug_gp
-{
-  width:940px;
-  height:720px;
-  margin-left:-30px;
-  position:relative;
-  z-index:102;
-  display:inline-block;
-  white-space:normal;
-}
+@gp_body_width: 940px;
+@gp_body_height: 720px;
+@gp_body_img_size: 357px 224px;
+@gp_body_img_pos: 0 0;
 
-.gf_debug_gp::after
-{
-  content:'';
-  width:100%;
-  height:100%;
-  position:absolute;
-  left:0;
-  top:0;
-  z-index:200;
-  background:url(gamepad.png);
-  background-size:357px 224px;
-  background-position:0 0;
-  background-repeat:no-repeat;
-}
+@gp_shoulder_width: 80px;
+@gp_shoulder_height: 30px;
+@gp_shoulder_top_img_size: 80px 30px;
+@gp_shoulder_top_img_pos: 358px 0;
+@gp_shoulder_bot_img_size: 64px 22px;
+@gp_shoulder_bot_img_pos: 358px 64px;
 
-.gf_debug_gp>.gf_debug_gp_buttons>div
-{
-  background-image:url(gamepad.png);
-  background-repeat:no-repeat;
-}
 
-.gf_debug_gp>.gf_debug_gp_buttons>::after
-{
-  position:absolute;
-  content:'';
-  border-radius:100%;
-  background:#000;
-  opacity:0;
-}
+.gf_debug_gp {
+    width: @gp_body_width;
+    height: @gp_body_height;
+    position: relative;
+    z-index: 102;
+    display: inline-block;
+    white-space: normal;
 
-.gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_top-shoulder
-{
-  width:80px;
-  height:30px;
-  z-index:200;
-  position:absolute;
-  background-size:80px 30px;
-  background-position:358px 0;
-}
+    &::after {
+        content: '';
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 200;
+        background: @gp_sprite;
+        background-size: @gp_body_img_size;
+        background-position: @gp_body_img_pos;
+        background-repeat: no-repeat;
+    }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-left-shoulder-top"]
-{
-  left:185px;
-  top:66px;
-}
+    > .gf_debug_gp_buttons {
+        > div {
+            background-image: @gp_sprite;
+            background-repeat: no-repeat;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-right-shoulder-top"]
-{
-  left:618px;
-  top:64px;
-}
+        > ::after {
+            position: absolute;
+            content: '';
+            border-radius: 100%;
+            background: #000;
+            opacity: 0;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_bottom-shoulder
-{
-  width:80px;
-  height:30px;
-  z-index:150;
-  position:absolute;
-  background-size:64px 22px;
-  background-position:0 0;
-}
+        > .gf_debug_gp_top-shoulder {
+            width: @gp_shoulder_width;
+            height: @gp_shoulder_height;
+            z-index: 200;
+            position: absolute;
+            background-size: @gp_shoulder_top_img_size;
+            background-position: @gp_shoulder_top_img_pos;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-left-shoulder-bottom"]
-{
-  left:185px;
-  top:46px;
-}
+        > [name="button-left-shoulder-top"] {
+            left: 185px;
+            top: 66px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-right-shoulder-bottom"]
-{
-  left:618px;
-  top:44px;
-}
+        > [name="button-right-shoulder-top"] {
+            left: 615px;
+            top: 66px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_face
-{
-  width:50px;
-  height:50px;
-  z-index:300;
-  position:absolute;
-  background-size:21px 21px;
-}
+        >.gf_debug_gp_bottom-shoulder {
+            width: @gp_shoulder_width;
+            height: @gp_shoulder_height;
+            z-index: 150;
+            position: absolute;
+            background-size: @gp_shoulder_bot_img_size;
+            background-position: @gp_shoulder_bot_img_pos;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_face::after
-{
-  left:5px;
-  top:5px;
-  right:5px;
-  bottom:5px;
-}
+        > [name="button-left-shoulder-bottom"] {
+            left: 185px;
+            top: 46px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-1"]
-{
-  left:676px;
-  top:241px;
-  background-position:402px 142px;
-}
+        > [name="button-right-shoulder-bottom"] {
+            left: 615px;
+            top: 46px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-2"]
-{
-  left:718px;
-  top:200px;
-  background-position:380px 121px;
-}
+        > .gf_debug_gp_face {
+            width: 50px;
+            height: 50px;
+            z-index: 300;
+            position: absolute;
+            background-size: 21px 21px;
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-3"]
-{
-  left:635px;
-  top:200px;
-  background-position:358px 121px;
-}
+            &::after {
+                left: 5px;
+                top: 5px;
+                right: 5px;
+                bottom: 5px;
+            }
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-4"]
-{
-  left:677px;
-  top:158px;
-  background-position:402px 120px;
-}
+        > [name="button-1"] {
+            left: 676px;
+            top: 241px;
+            background-position: 402px 142px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-dpad-bottom"]
-{
-  left:246px;
-  top:242px;
-  background-position:380px 99px;
-}
+        > [name="button-2"] {
+            left: 718px;
+            top: 200px;
+            background-position: 380px 121px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-dpad-right"]
-{
-  left:286px;
-  top:201px;
-  background-position:403px 98px;
-}
+        > [name="button-3"] {
+            left: 635px;
+            top: 200px;
+            background-position: 358px 121px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-dpad-left"]
-{
-  left:203px;
-  top:201px;
-  background-position:358px 99px;
-}
+        > [name="button-4"] {
+            left: 677px;
+            top: 158px;
+            background-position: 402px 120px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-dpad-top"]
-{
-  left:244px;
-  top:159px;
-  background-position:403px 54px;
-}
+        > [name="button-dpad-bottom"] {
+            left:246px;
+            top:242px;
+            background-position:380px 99px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_select-start
-{
-  width:90px;
-  height:90px;
-  z-index:300;
-  position:absolute;
-  background-size:21px 21px;
-  background-repeat:no-repeat;
-  background-position:403px 76px;
-}
+        > [name="button-dpad-right"] {
+            left:286px;
+            top:201px;
+            background-position:403px 98px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_select-start::after
-{
-  left:25px;
-  top:25px;
-  right:24px;
-  bottom:25px;
-}
+        > [name="button-dpad-left"] {
+            left:203px;
+            top:201px;
+            background-position:358px 99px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-select"]
-{
-  left:388px;
-  top:178px;
-}
+        > [name="button-dpad-top"] {
+            left:244px;
+            top:159px;
+            background-position:403px 54px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="button-start"]
-{
-  left:492px;
-  top:178px;
-}
+        > .gf_debug_gp_select-start {
+            width:90px;
+            height:90px;
+            z-index:300;
+            position:absolute;
+            background-size:21px 21px;
+            background-repeat:no-repeat;
+            background-position:403px 76px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_stick
-{
-  width:190px;
-  height:190px;
-  z-index:300;
-  position:absolute;
-  background-size:44px 44px;
-  background-repeat:no-repeat;
-  background-position:358px 54px;
-}
+        > .gf_debug_gp_select-start::after {
+            left:25px;
+            top:25px;
+            right:24px;
+            bottom:25px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_stick::after
-{
-  left:54px;
-  top:54px;
-  right:54px;
-  bottom:54px;
-}
+        > [name="button-select"] {
+            left:388px;
+            top:178px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="stick-1"]
-{
-  left:286px;
-  top:243px;
-}
+        > [name="button-start"] {
+            left:492px;
+            top:178px;
+        }
 
-.gf_debug_gp>.gf_debug_gp_buttons>[name="stick-2"]
-{
-  left:495px;
-  top:243px;
+        > .gf_debug_gp_stick {
+            width:190px;
+            height:190px;
+            z-index:300;
+            position:absolute;
+            background-size:44px 44px;
+            background-repeat:no-repeat;
+            background-position:358px 54px;
+        }
+
+        > .gf_debug_gp_stick::after {
+            left:54px;
+            top:54px;
+            right:54px;
+            bottom:54px;
+        }
+
+        > [name="stick-1"] {
+            left:286px;
+            top:243px;
+        }
+
+        > [name="stick-2"] {
+            left:495px;
+            top:243px;
+        }
+    }
 }
 
 /**************************
@@ -232,397 +211,397 @@
  **************************/
 .gf_debug_gp>.gf_debug_gp_labels label
 {
-  z-index:800;
-  color:#000;
-  font-family:Arial;
-  font-size:18px;
-  line-height:24px;
-  width:120px;
-  margin-left:-60px;
-  margin-top:0;
-  display:block;
-  text-align:center;
-  font-weight:400;
-  position:absolute;
-  opacity:.25;
-  -webkit-transition:opacity 1500ms;
-  -webkit-transition-delay:500ms;
-  -moz-transition:opacity 1500ms;
-  -moz-transition-delay:500ms;
+    z-index:800;
+    color:#000;
+    font-family:Arial;
+    font-size:18px;
+    line-height:24px;
+    width:120px;
+    margin-left:-60px;
+    margin-top:0;
+    display:block;
+    text-align:center;
+    font-weight:400;
+    position:absolute;
+    opacity:.25;
+    -webkit-transition:opacity 1500ms;
+    -webkit-transition-delay:500ms;
+    -moz-transition:opacity 1500ms;
+    -moz-transition-delay:500ms;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels label::before,
 .gf_debug_gp>.gf_debug_gp_labels label::after
 {
-  font-size:11px;
-  display:block;
-  font-weight:400;
-  line-height:11px;
+    font-size:11px;
+    display:block;
+    font-weight:400;
+    line-height:11px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>.gf_debug_gp_extra-inputs>label
 {
-  position:static;
-  display:inline-block;
-  margin-left:0;
+    position:static;
+    display:inline-block;
+    margin-left:0;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>.gf_debug_gp_extra-inputs>label::before
 {
-  content:attr(description);
+    content:attr(description);
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>.gf_debug_gp_extra-inputs>label::after
 {
-  content:attr(access);
+    content:attr(access);
 }
 
 .gf_debug_gp>.gf_debug_gp_labels label.visible
 {
-  opacity:1!important;
-  -webkit-transition:opacity 100ms;
-  -webkit-transition-delay:0;
-  -moz-transition:opacity 100ms;
-  -moz-transition-delay:0;
+    opacity:1!important;
+    -webkit-transition:opacity 100ms;
+    -webkit-transition-delay:0;
+    -moz-transition:opacity 100ms;
+    -moz-transition-delay:0;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels label.positive
 {
-  color:#008c00;
+    color:#008c00;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels label.negative
 {
-  color:#c80000;
+    color:#c80000;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-1"]
 {
-  left:870px;
-  top:191px;
+    left:870px;
+    top:191px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-1"]::before
 {
-  content:'Face button 1';
+    content:'Face button 1';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-1"]::after
 {
-  content:'buttons[0]';
+    content:'buttons[0]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-2"]
 {
-  left:870px;
-  top:251px;
+    left:870px;
+    top:251px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-2"]::before
 {
-  content:'Face button 2';
+    content:'Face button 2';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-2"]::after
 {
-  content:'buttons[1]';
+    content:'buttons[1]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-3"]
 {
-  left:880px;
-  top:311px;
+    left:880px;
+    top:311px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-3"]::before
 {
-  content:'Face button 3';
+    content:'Face button 3';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-3"]::after
 {
-  content:'buttons[2]';
+    content:'buttons[2]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-4"]
 {
-  left:890px;
-  top:371px;
+    left:890px;
+    top:371px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-4"]::before
 {
-  content:'Face button 4';
+    content:'Face button 4';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-4"]::after
 {
-  content:'buttons[3]';
+    content:'buttons[3]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-top"]
 {
-  left:100px;
-  top:191px;
+    left:100px;
+    top:191px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-top"]::before
 {
-  content:'D-pad top';
+    content:'D-pad top';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-top"]::after
 {
-  content:'buttons[12]';
+    content:'buttons[12]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-left"]
 {
-  left:100px;
-  top:251px;
+    left:100px;
+    top:251px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-left"]::before
 {
-  content:'D-pad left';
+    content:'D-pad left';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-left"]::after
 {
-  content:'buttons[14]';
+    content:'buttons[14]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-right"]
 {
-  left:90px;
-  top:311px;
+    left:90px;
+    top:311px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-right"]::before
 {
-  content:'D-pad right';
+    content:'D-pad right';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-right"]::after
 {
-  content:'buttons[15]';
+    content:'buttons[15]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-bottom"]
 {
-  left:80px;
-  top:371px;
+    left:80px;
+    top:371px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-bottom"]::before
 {
-  content:'D-pad bottom';
+    content:'D-pad bottom';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-dpad-bottom"]::after
 {
-  content:'buttons[13]';
+    content:'buttons[13]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-left-shoulder-top"]
 {
-  left:210px;
-  top:10px;
+    left:210px;
+    top:10px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-left-shoulder-top"]::before
 {
-  content:'Left top shoulder';
+    content:'Left top shoulder';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-left-shoulder-top"]::after
 {
-  content:'buttons[4]';
+    content:'buttons[4]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-left-shoulder-bottom"]
 {
-  left:320px;
-  top:10px;
+    left:320px;
+    top:10px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-left-shoulder-bottom"]::before
 {
-  content:'Left bottom shoulder';
+    content:'Left bottom shoulder';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-left-shoulder-bottom"]::after
 {
-  content:'buttons[6]';
+    content:'buttons[6]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-right-shoulder-top"]
 {
-  left:750px;
-  top:10px;
+    left:750px;
+    top:10px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-right-shoulder-top"]::before
 {
-  content:'Right top shoulder';
+    content:'Right top shoulder';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-right-shoulder-top"]::after
 {
-  content:'buttons[5]';
+    content:'buttons[5]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-right-shoulder-bottom"]
 {
-  left:640px;
-  top:10px;
+    left:640px;
+    top:10px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-right-shoulder-bottom"]::before
 {
-  content:'Right bottom shoulder';
+    content:'Right bottom shoulder';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-right-shoulder-bottom"]::after
 {
-  content:'buttons[7]';
+    content:'buttons[7]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-select"]
 {
-  left:440px;
-  top:60px;
+    left:440px;
+    top:60px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-select"]::before
 {
-  content:'Select';
+    content:'Select';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-select"]::after
 {
-  content:'buttons[8]';
+    content:'buttons[8]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-start"]
 {
-  left:540px;
-  top:60px;
+    left:540px;
+    top:60px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-start"]::before
 {
-  content:'Start';
+    content:'Start';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="button-start"]::after
 {
-  content:'buttons[9]';
+    content:'buttons[9]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-1-axis-x"]
 {
-  left:380px;
-  top:441px;
+    left:380px;
+    top:441px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-1-axis-x"]::before
 {
-  content:'First stick X';
+    content:'First stick X';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-1-axis-x"]::after
 {
-  content:'axes[0]';
+    content:'axes[0]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-1-axis-y"]
 {
-  left:380px;
-  top:501px;
+    left:380px;
+    top:501px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-1-axis-y"]::before
 {
-  content:'First stick Y';
+    content:'First stick Y';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-1-axis-y"]::after
 {
-  content:'axes[1]';
+    content:'axes[1]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-1"]
 {
-  left:380px;
-  top:561px;
+    left:380px;
+    top:561px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-1"]::before
 {
-  content:'First stick button';
+    content:'First stick button';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-1"]::after
 {
-  content:'buttons[10]';
+    content:'buttons[10]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-2-axis-x"]
 {
-  left:590px;
-  top:441px;
+    left:590px;
+    top:441px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-2-axis-x"]::before
 {
-  content:'Second stick X';
+    content:'Second stick X';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-2-axis-x"]::after
 {
-  content:'axes[2]';
+    content:'axes[2]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-2-axis-y"]
 {
-  left:590px;
-  top:501px;
+    left:590px;
+    top:501px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-2-axis-y"]::before
 {
-  content:'Second stick Y';
+    content:'Second stick Y';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-2-axis-y"]::after
 {
-  content:'axes[3]';
+    content:'axes[3]';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-2"]
 {
-  left:590px;
-  top:561px;
+    left:590px;
+    top:561px;
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-2"]::before
 {
-  content:'Second stick button';
+    content:'Second stick button';
 }
 
 .gf_debug_gp>.gf_debug_gp_labels>label[for="stick-2"]::after
 {
-  content:'buttons[11]';
+    content:'buttons[11]';
 }
 
 .gf_debug_gp>.gf_debug_gp_buttons>.pressed::after
 {
-  opacity:.5;
+    opacity:.5;
 }
 
 .gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_top-shoulder.pressed,
 .gf_debug_gp>.gf_debug_gp_buttons>.gf_debug_gp_bottom-shoulder.pressed
 {
-  margin-top:5px;
+    margin-top:5px;
 }
