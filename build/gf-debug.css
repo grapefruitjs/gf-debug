@@ -58,7 +58,7 @@
 }
 .gf_debug .gf_debug_panel {
   display: none;
-  height: 250px;
+  height: 265px;
   overflow: auto;
 }
 .gf_debug .gf_debug_panel.sprites > div {

@@ -7,7 +7,7 @@ gf.debug.Minimap = function(container, game) {
     this.ctx = this.canvas.getContext('2d');
     this.pctx = this.prerenderCanvas.getContext('2d');
 
-    this.cachedpos = new gf.Point();
+    this.cachedpos = new gf.Vector();
     this.mapimage = null;
     this.game = game;
     this.scale = 0.25;
@@ -15,7 +15,7 @@ gf.debug.Minimap = function(container, game) {
     this.viewportRectColor = 'rgba(255, 0, 255, 1)';
 };
 
-gf.inherits(gf.debug.Minimap, Object, {
+ gf.inherit(gf.debug.Minimap, Object, {
     render: function() {
         if(!this.game.world)
             return;

@@ -17,7 +17,7 @@ gf.debug.onTick = function() {
     gf.debug._statsTick();
 
     if(gf.debug.panels) {
-        gf.debug.panels.map.tick();
+        //gf.debug.panels.map.tick();
         gf.debug.panels.performance.tick();
         gf.debug.panels.sprites.tick();
     }
@@ -165,6 +165,7 @@ gf.debug._statsTick = function() {
     this.ui.setText(this._stats.ms.firstElementChild, ms.toFixed(2));
     this.ui.setText(this._stats.fps.firstElementChild, fps.toFixed(2));
 };
+/*
 
 //update the number of sprites every couple seconds (instead of every frame)
 //since it is so expensive
@@ -193,3 +194,4 @@ setInterval(function() {
             gf.debug.logEvent('debug_count_objects');
     }
 }, 2000);
+*/

@@ -1,6 +1,6 @@
 {
     "name": "gf-debug",
-    "longName": "GrapeFruit Debug Plugin",
+    "longName": "GrapeFruit Debug Module",
 
     "version": "0.0.1",
     "description": "Provides useful debugging information",
@@ -22,12 +22,13 @@
     "devDependencies": {
         "grunt": "0.4.x",
         "grunt-contrib-jshint": "0.x",
+        "grunt-contrib-yuidoc": "0.x",
         "grunt-contrib-concat": "0.x",
         "grunt-contrib-uglify": "0.x",
-        "grunt-contrib-yuidoc": "0.x",
         "grunt-contrib-less": "0.x",
         "grunt-replace": "0.x"
     },
+    "peerDependencies": {},
 
     "scripts": {
         "build": "grunt build"

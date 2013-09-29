@@ -4,7 +4,7 @@ gf.debug.SpritesPanel = function(game) {
     this.name = 'sprites';
     this.title = 'Sprites';
 
-    this.gfx = new PIXI.Graphics();
+    this.gfx = new gf.PIXI.Graphics();
 
     this.style = {
         _default: {
@@ -20,7 +20,7 @@ gf.debug.SpritesPanel = function(game) {
     };
 };
 
-gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
+ gf.inherit(gf.debug.SpritesPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this),
             pad = document.createElement('div'),

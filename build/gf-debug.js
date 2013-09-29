@@ -1,12 +1,12 @@
 /**
  * @license
- * GrapeFruit Debug Plugin - v0.0.1
+ * GrapeFruit Debug Module - v0.0.1
  * Copyright (c) 2013, Chad Engler
  * https://github.com/grapefruitjs/gf-debug
  *
- * Compiled: 2013-08-06
+ * Compiled: 2013-09-29
  *
- * GrapeFruit Debug Plugin is licensed under the MIT License.
+ * GrapeFruit Debug Module is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license.php
  */
 (function(window, undefined) {
@@ -31,7 +31,7 @@ gf.debug.onTick = function() {
     gf.debug._statsTick();
 
     if(gf.debug.panels) {
-        gf.debug.panels.map.tick();
+        //gf.debug.panels.map.tick();
         gf.debug.panels.performance.tick();
         gf.debug.panels.sprites.tick();
     }
@@ -179,6 +179,7 @@ gf.debug._statsTick = function() {
     this.ui.setText(this._stats.ms.firstElementChild, ms.toFixed(2));
     this.ui.setText(this._stats.fps.firstElementChild, fps.toFixed(2));
 };
+/*
 
 //update the number of sprites every couple seconds (instead of every frame)
 //since it is so expensive
@@ -207,13 +208,14 @@ setInterval(function() {
             gf.debug.logEvent('debug_count_objects');
     }
 }, 2000);
+*/
 gf.debug.Panel = function(game) {
     this.game = game;
     this.name = '';
     this.title = '';
 };
 
-gf.inherits(gf.debug.Panel, Object, {
+ gf.inherit(gf.debug.Panel, Object, {
     //builds the html for a panel
     createPanelElement: function() {
         var div = this._panel = document.createElement('div');
@@ -253,7 +255,7 @@ gf.debug.GamepadPanel = function(game) {
     this.bindEvents();
 };
 
-gf.inherits(gf.debug.GamepadPanel, gf.debug.Panel, {
+ gf.inherit(gf.debug.GamepadPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
@@ -267,28 +269,28 @@ gf.inherits(gf.debug.GamepadPanel, gf.debug.Panel, {
             pad = this.gamepad;
 
         //bind all buttons
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_1, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_2, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_3, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.FACE_4, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.LEFT_SHOULDER, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.RIGHT_SHOULDER, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.LEFT_TRIGGER, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.RIGHT_TRIGGER, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.SELECT, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.START, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.LEFT_ANALOGUE_STICK, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.RIGHT_ANALOGUE_STICK, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_TOP, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_BOTTOM, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_LEFT, pad.updateButton.bind(pad));
-        game.input.gamepad.buttons.on(gf.input.GP_BUTTON.PAD_RIGHT, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.FACE_1, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.FACE_2, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.FACE_3, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.FACE_4, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.LEFT_SHOULDER, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.RIGHT_SHOULDER, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.LEFT_TRIGGER, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.RIGHT_TRIGGER, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.SELECT, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.START, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.LEFT_ANALOGUE_STICK, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.RIGHT_ANALOGUE_STICK, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.PAD_TOP, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.PAD_BOTTOM, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.PAD_LEFT, pad.updateButton.bind(pad));
+        game.input.gamepad.buttons.on(gf.GamepadButtons.BUTTON.PAD_RIGHT, pad.updateButton.bind(pad));
 
         //bind all sticks
-        game.input.gamepad.sticks.on(gf.input.GP_AXIS.LEFT_ANALOGUE_HOR, pad.updateAxis.bind(pad));
-        game.input.gamepad.sticks.on(gf.input.GP_AXIS.LEFT_ANALOGUE_VERT, pad.updateAxis.bind(pad));
-        game.input.gamepad.sticks.on(gf.input.GP_AXIS.RIGHT_ANALOGUE_HOR, pad.updateAxis.bind(pad));
-        game.input.gamepad.sticks.on(gf.input.GP_AXIS.RIGHT_ANALOGUE_VERT, pad.updateAxis.bind(pad));
+        game.input.gamepad.sticks.on(gf.GamepadSticks.AXIS.LEFT_ANALOGUE_HOR, pad.updateAxis.bind(pad));
+        game.input.gamepad.sticks.on(gf.GamepadSticks.AXIS.LEFT_ANALOGUE_VERT, pad.updateAxis.bind(pad));
+        game.input.gamepad.sticks.on(gf.GamepadSticks.AXIS.RIGHT_ANALOGUE_HOR, pad.updateAxis.bind(pad));
+        game.input.gamepad.sticks.on(gf.GamepadSticks.AXIS.RIGHT_ANALOGUE_VERT, pad.updateAxis.bind(pad));
     }
 });
 gf.debug.PerformancePanel = function(game) {
@@ -300,14 +302,15 @@ gf.debug.PerformancePanel = function(game) {
     this.active = false;
 };
 
-gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
+ gf.inherit(gf.debug.PerformancePanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
-        this.graph = new gf.debug.Graph(div, window.innerWidth - 10, 250 - 5, {
+        this.graph = new gf.debug.Graph(div, window.innerWidth - 20, 250 - 5, {
             input: 'rgba(80, 220, 80, 1)',
             camera: 'rgba(80, 80, 220, 1)',
             phys: 'rgba(80, 220, 200, 1)',
+            user: 'rgba(200, 80, 220, 1)',
             draw: 'rgba(220, 80, 80, 1)',
             event: 'rgba(200, 200, 200, 0.6)'
         });
@@ -324,6 +327,7 @@ gf.inherits(gf.debug.PerformancePanel, gf.debug.Panel, {
                 input: t.inputEnd - t.inputStart,
                 camera: t.cameraEnd - t.cameraStart,
                 phys: t.physicsEnd - t.physicsStart,
+                user: t.userFuncsEnd - t.userFuncsStart,
                 draw: t.renderEnd - t.renderStart
             },
             evt = this.eventQueue.shift();
@@ -343,7 +347,7 @@ gf.debug.SpritesPanel = function(game) {
     this.name = 'sprites';
     this.title = 'Sprites';
 
-    this.gfx = new PIXI.Graphics();
+    this.gfx = new gf.PIXI.Graphics();
 
     this.style = {
         _default: {
@@ -359,7 +363,7 @@ gf.debug.SpritesPanel = function(game) {
     };
 };
 
-gf.inherits(gf.debug.SpritesPanel, gf.debug.Panel, {
+ gf.inherit(gf.debug.SpritesPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this),
             pad = document.createElement('div'),
@@ -442,7 +446,7 @@ gf.debug.MapPanel = function (game) {
     this.title = 'Mini-Map';
 };
 
-gf.inherits(gf.debug.MapPanel, gf.debug.Panel, {
+ gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
@@ -501,7 +505,7 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
         this.styles.event = 'gray';
 };
 
-gf.inherits(gf.debug.Graph, Object, {
+ gf.inherit(gf.debug.Graph, Object, {
     addData: function(values) {
         this.data.push(values);
 
@@ -654,7 +658,7 @@ gf.debug.Minimap = function(container, game) {
     this.ctx = this.canvas.getContext('2d');
     this.pctx = this.prerenderCanvas.getContext('2d');
 
-    this.cachedpos = new gf.Point();
+    this.cachedpos = new gf.Vector();
     this.mapimage = null;
     this.game = game;
     this.scale = 0.25;
@@ -662,7 +666,7 @@ gf.debug.Minimap = function(container, game) {
     this.viewportRectColor = 'rgba(255, 0, 255, 1)';
 };
 
-gf.inherits(gf.debug.Minimap, Object, {
+ gf.inherit(gf.debug.Minimap, Object, {
     render: function() {
         if(!this.game.world)
             return;
@@ -830,7 +834,7 @@ gf.debug.Gamepad = function() {
     el.innerHTML = template;
 };
 
-gf.inherits(gf.debug.Gamepad, Object, {
+ gf.inherit(gf.debug.Gamepad, Object, {
     updateButton: function(status) {
         var buttonEl = this.element.querySelector('[name="' + btnIds[status.code] + '"]'),
             labelEl = this.element.querySelector('label[for="' + btnIds[status.code] + '"]');
