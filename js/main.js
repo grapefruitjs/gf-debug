@@ -74,6 +74,118 @@ gf.debug.logEvent = function(name) {
         this.panels.performance.logEvent(name);
 };
 
+/**
+ * Draws the body of a sprite
+ *
+ * @method drawBodyShape
+ * @param body {Body} The body to draw a visual representation of
+ * @param [style] {Object} The style of the line draws
+ * @param [style.size=1] {Number} The thickness of the line stroke
+ * @param [style.color=0xff2222] {Number} The color of the line stroke
+ * @param [style.alpha=1] {Number} The opacity of the line stroke [0 - 1]
+ * @param [gfx] {Graphics} The graphics object to use to draw with, if
+ *      none is passed a new one is created and added ot the world.
+ * @return {Graphics} The graphics object used to draw the shape
+ */
+gf.debug.drawBodyShape = function(body, style, gfx) {
+    var shape = body.shape,
+        p = shape.position,
+        style = body.sensor ? self.style.sensor : self.style._default,
+        game = this.game;
+
+    //setup gfx
+    gfx = gfx || (function() {
+                    var g = new gf.PIXI.Graphics();
+                    game.world.add.obj(g);
+                    return g;
+                })();
+
+    //setup style
+    style = style || {};
+
+    gfx.lineStyle(
+        style.size !== undefined ? style.size : 1,
+        style.color !== undefined ? style.color : 0xff2222,
+        style.alpha !== undefined ? style.alpha : 1
+    );
+
+    //draw circle
+    if(shape._shapetype === gf.SHAPE.CIRCLE) {
+        //var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
+        //    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
+
+        gfx.drawCircle(p.x, p.y, shape.radius);
+    }
+    //draw polygon
+    else {
+        var pt = shape.points[0];
+
+        gfx.moveTo(p.x + pt.x, p.y + pt.y);
+
+        for(var x = 1; x < shape.points.length; x++) {
+            gfx.lineTo(
+                p.x + shape.points[x].x,
+                p.y + shape.points[x].y
+            );
+        }
+
+        gfx.lineTo(p.x + pt.x, p.y + pt.y);
+    }
+
+    return gfx;
+};
+
+/**
+ * Draws the quadtree used by physics onto the screen
+ *
+ * @method drawQuadTree
+ * @param [tree=game.physics.tree] {QuadTree} The quadtree to draw, generally this is for recursing
+ * @param [style] {Object} The style of the line draws
+ * @param [style.size=1] {Number} The thickness of the line stroke
+ * @param [style.color=0x2222ff] {Number} The color of the line stroke
+ * @param [style.alpha=1] {Number} The opacity of the line stroke [0 - 1]
+ * @param [gfx] {Graphics} The graphics object to use to draw with, if
+ *      none is passed a new one is created and added ot the world.
+ * @return {Graphics} The graphics object used to draw the tree
+ */
+gf.debug.drawQuadTree = function(tree, style, gfx) {
+    //setup gfx
+    gfx = gfx || (function() {
+                    var g = new gf.PIXI.Graphics();
+                    game.world.add.obj(g);
+                    return g;
+                })();
+
+    tree = tree || this.game.physics.tree;
+
+    //setup style
+    style = style || {};
+
+    gfx.lineStyle(
+        style.size !== undefined ? style.size : 1,
+        style.color !== undefined ? style.color : 0x2222ff,
+        style.alpha !== undefined ? style.alpha : 1
+    );
+
+    //draw our bounds
+    gfx.drawRect(
+        tree.bounds.x,
+        tree.bounds.y,
+        tree.bounds.width,
+        tree.bounds.height
+    );
+
+    //draw each node
+    if(tree.nodes.length) {
+        for(i = 0; i < tree.nodes.length; ++i) {
+            //recurse for children
+            this.drawQuadTree(tree.nodes[i], style, gfx);
+        }
+    }
+
+    return gfx;
+};
+
 gf.debug._bindEvents = function() {
     var activePanel,
         self = this;

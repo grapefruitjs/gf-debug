@@ -5,19 +5,30 @@ gf.debug.SpritesPanel = function(game) {
     this.title = 'Sprites';
 
     this.gfx = new gf.PIXI.Graphics();
+    this.game.world.add.obj(this.gfx);
 
     this.style = {
-        _default: {
+        _defaultShape: {
             size: 1,
             color: 0xff2222,
             alpha: 1
         },
-        sensor: {
+        sensorShape: {
             size: 1,
             color: 0x22ff22,
             alpha: 1
+        },
+        tree: {
+            size: 1,
+            color: 0x2222ff,
+            alpha: 1
         }
     };
+
+    this.showing = {
+        shapes: false,
+        tree: false
+    }
 };
 
  gf.inherit(gf.debug.SpritesPanel, gf.debug.Panel, {
@@ -29,69 +40,47 @@ gf.debug.SpritesPanel = function(game) {
         // Show colliders
         gf.debug.ui.addClass(col, 'checkbox');
         gf.debug.ui.setHtml(col,
-            '<input type="checkbox" value="None" id="gf_debug_toggleCollisions" class="gf_debug_toggleCollisions" name="check" />' +
-            '<label for="gf_debug_toggleCollisions"></label>' +
-            '<span>Show sprite colliders</span>'
+            '<input type="checkbox" value="" id="gf_debug_toggleShapes" class="gf_debug_toggleShapes" name="check" />' +
+            '<label for="gf_debug_toggleShapes"></label>' +
+            '<span>Draw Collider Shapes</span>' +
+            '<br/>' +
+            '<input type="checkbox" value="" id="gf_debug_toggleQuadTree" class="gf_debug_toggleQuadTree" name="check" />' +
+            '<label for="gf_debug_toggleQuadTree"></label>' +
+            '<span>Draw QuadTree</span>'
         );
-        gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleCollisions', this.toggleCollisions.bind(this), 'input');
+        gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleShapes', this.toggle.bind(this, 'shapes'), 'input');
+        gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleQuadTree', this.toggle.bind(this, 'tree'), 'input');
         pad.appendChild(col);
 
         div.appendChild(pad);
 
         return div;
     },
-    toggleCollisions: function() {
-        this.showing = !this.showing;
-
-        if(this.showing) {
-            this.game.world.addChild(this.gfx);
-            this._drawPhysics();
-        } else {
-            if(this.gfx.parent)
-                this.gfx.parent.removeChild(this.gfx);
-        }
+    toggle: function(type) {
+        this.showing[type] = !this.showing[type];
     },
     tick: function() {
-        if(this.showing) {
-            this._drawPhysics();
-        }
-    },
-    _drawPhysics: function() {
-        var self = this,
-            g = this.gfx,
-            bods = this.game.physics.bodies;
-
         this.gfx.clear();
-        for(var i = 0; i < bods.length; ++i) {
-            var body = bods[i],
-                shape = body.shape,
-                p = shape.position,
-                style = body.sensor ? self.style.sensor : self.style._default;
 
-            g.lineStyle(style.size, style.color, style.alpha);
-
-            //circle
-            if(shape._shapetype === gf.SHAPE.CIRCLE) {
-                //var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
-                //    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
-
-                g.drawCircle(p.x, p.y, shape.radius);
+        //draw all the bodies
+        if(this.showing.shapes) {
+            var bods = this.game.physics.bodies;
+            for(var i = 0; i < bods.length; ++i) {
+                gf.debug.drawBodyShape(
+                    bods[i],
+                    bods[i].sensor ? this.style.sensorShape : this.style._defaultShape,
+                    this.gfx
+                );
             }
-            //polygon
-            else {
-                var pt = shape.points[0];
+        }
 
-                g.moveTo(p.x + pt.x, p.y + pt.y);
-
-                for(var x = 1; x < shape.points.length; x++) {
-                    g.lineTo(
-                        p.x + shape.points[x].x,
-                        p.y + shape.points[x].y
-                    );
-                }
-
-                g.lineTo(p.x + pt.x, p.y + pt.y);
-            }
+        //draw the quadtree
+        if(this.showing.tree) {
+            gf.debug.drawQuadTree(
+                this.game.physics.tree,
+                this.style.tree,
+                this.gfx
+            );
         }
     }
 });
