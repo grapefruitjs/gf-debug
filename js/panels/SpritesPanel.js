@@ -58,41 +58,40 @@ gf.debug.SpritesPanel = function(game) {
     },
     _drawPhysics: function() {
         var self = this,
-            g = this.gfx;
+            g = this.gfx,
+            bods = this.game.physics.bodies;
 
         this.gfx.clear();
-        this.game.physics.space.eachShape(function(shape) {
-            if(!shape.body) return;
-
-            var body = shape.body,
-                p = body.p,
-                style = shape.sensor ? self.style.sensor : self.style._default;
+        for(var i = 0; i < bods.length; ++i) {
+            var body = bods[i],
+                shape = body.shape,
+                p = shape.position,
+                style = body.sensor ? self.style.sensor : self.style._default;
 
             g.lineStyle(style.size, style.color, style.alpha);
 
             //circle
-            if(shape.type === 'circle') {
-                var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
-                    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
+            if(shape._shapetype === gf.SHAPE.CIRCLE) {
+                //var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
+                //    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
 
-                g.drawCircle(cx, cy, shape.r);
+                g.drawCircle(p.x, p.y, shape.radius);
             }
             //polygon
             else {
-                var sx = shape.verts[0],
-                    sy = shape.verts[1];
+                var pt = shape.points[0];
 
-                g.moveTo(p.x + sx, p.y + sy);
+                g.moveTo(p.x + pt.x, p.y + pt.y);
 
-                for(var i = 2; i < shape.verts.length; i+=2) {
+                for(var x = 1; x < shape.points.length; x++) {
                     g.lineTo(
-                        p.x + shape.verts[i],
-                        p.y + shape.verts[i + 1]
+                        p.x + shape.points[x].x,
+                        p.y + shape.points[x].y
                     );
                 }
 
-                g.lineTo(p.x + sx, p.y + sy);
+                g.lineTo(p.x + pt.x, p.y + pt.y);
             }
-        });
+        }
     }
 });
