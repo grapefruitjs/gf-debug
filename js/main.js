@@ -14,6 +14,9 @@ gf.debug.gfVersion = '@@GF_VERSION';
 gf.debug.onTick = function() {
     this._super();
 
+    var dStart = gf.debug.game.clock.now(),
+        dEnd;
+
     gf.debug._statsTick();
 
     if(gf.debug.panels) {
@@ -21,6 +24,9 @@ gf.debug.onTick = function() {
         gf.debug.panels.performance.tick();
         gf.debug.panels.sprites.tick();
     }
+
+    dEnd = gf.debug.game.clock.now();
+    gf.debug.game.timings.__debugLastDiff = dEnd - dStart;
 };
 
 /**
