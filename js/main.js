@@ -20,7 +20,7 @@ gf.debug.onTick = function() {
     gf.debug._statsTick();
 
     if(gf.debug.panels) {
-        //gf.debug.panels.map.tick();
+        gf.debug.panels.map.tick();
         gf.debug.panels.performance.tick();
         gf.debug.panels.sprites.tick();
     }

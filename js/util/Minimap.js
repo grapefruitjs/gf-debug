@@ -65,46 +65,58 @@ gf.debug.Minimap = function(container, game) {
         );
     },
     prerender: function() {
-        var world = this.game.world,
-            size = world.size,
-            tsx = world.tileSize.x * this.scale,
-            tsy = world.tileSize.y * this.scale;
+        var world = this.game.world;
 
-        for(var l = 0, ll = world.children.length; l < ll; ++l) {
-            var layer = world.children[l];
-
-            //if it is a TiledLayer
-            if(layer.tileIds && layer.visible) {
-                for(var x = 0, xl = size.x; x < xl; ++x) {
-                    for(var y = 0, yl = size.y; y < yl; ++y) {
-                        var id = (x + (y * size.x)),
-                            tid = layer.tileIds[id],
-                            set = world.getTileset(tid),
-                            tx;
-
-                        if(set) {
-                            tx = set.getTileTexture(tid);
-                            this.prerenderTile(tx, x * tsx, y * tsy);
-                        }
-                    }
-                }
+        //for each child of world, if it is visible and a tilemap, prerender it
+        for(var w = 0, wl = world.children.length; w < wl; ++w) {
+            if(world.children[w].visible && world.children[w] instanceof gf.Tilemap) {
+                this.prerenderMap(world.children[w]);
             }
         }
     },
-    prerenderTile: function(tile, x, y) {
-        var frame = tile.frame;
+    prerenderMap: function(map) {
+        for(var l = 0, ll = map.children.length; l < ll; ++l) {
+            var layer = map.children[l];
+
+            //if it is a Tilelayer and is visible
+            if(layer.tileIds && layer.visible) {
+                this.prerenderLayer(layer, map);
+            }
+        }
+    },
+    prerenderLayer: function(layer, map) {
+        var size = map.size,
+            tsx = map.tileSize.x * this.scale,
+            tsy = map.tileSize.y * this.scale;
+
+        //render the layer one tile at a time
+        for(var x = 0, xl = size.x; x < xl; ++x) {
+            for(var y = 0, yl = size.y; y < yl; ++y) {
+                var id = (x + (y * size.x)),
+                    tid = layer.tileIds[id];
+
+                this.prerenderTile(tid, map);
+            }
+        }
+    },
+    prerenderTile: function(tid, x, y) {
+        var set = map.getTileset(tid),
+            tx = set.getTileTexture(tid);
+
+        if(!set || !tx)
+            return;
 
         //from pixi canvas renderer
         this.pctx.drawImage(
-            tile.baseTexture.source,
-            frame.x,
-            frame.y,
-            frame.width,
-            frame.height,
+            tx.baseTexture.source,
+            tx.frame.x,
+            tx.frame.y,
+            tx.frame.width,
+            tx.frame.height,
             x,
             y,
-            frame.width * this.scale,
-            frame.height * this.scale
+            tx.frame.width * this.scale,
+            tx.frame.height * this.scale
         );
     }
 });
