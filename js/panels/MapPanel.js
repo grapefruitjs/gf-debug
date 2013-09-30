@@ -14,6 +14,9 @@ gf.debug.MapPanel = function (game) {
         return div;
     },
     tick: function() {
+        if(!this.active)
+            return;
+
         this.minimap.render();
     }
 });
