@@ -254,7 +254,8 @@ gf.debug._createMenuStats = function() {
     var div = document.createElement('div'),
         fps = this._stats.fps = document.createElement('div'),
         ms = this._stats.ms = document.createElement('div'),
-        obj = this._stats.obj = document.createElement('div');
+        wld = this._stats.wld = document.createElement('div'),
+        cam = this._stats.cam = document.createElement('div');
 
     this.ui.addClass(div, 'gf_debug_stats');
 
@@ -266,9 +267,13 @@ gf.debug._createMenuStats = function() {
     this.ui.setHtml(fps, '<span>0</span> fps');
     div.appendChild(fps);
 
-    this.ui.addClass(obj, 'gf_debug_stats_item obj');
-    this.ui.setHtml(obj, '<span>0</span> objects');
-    div.appendChild(obj);
+    this.ui.addClass(wld, 'gf_debug_stats_item world');
+    this.ui.setHtml(wld, '<span>0</span> world objs');
+    div.appendChild(wld);
+
+    this.ui.addClass(cam, 'gf_debug_stats_item camera');
+    this.ui.setHtml(cam, '<span>0</span> camera objs');
+    div.appendChild(cam);
 
     return div;
 };
@@ -282,34 +287,28 @@ gf.debug._statsTick = function() {
     //update stats
     this.ui.setText(this._stats.ms.firstElementChild, ms.toFixed(2));
     this.ui.setText(this._stats.fps.firstElementChild, fps.toFixed(2));
+
+    //count objects in the world
+    var wld = this.game.state.active.world,
+        cam = this.game.state.active.camera,
+        wlast = wld.last._iNext,
+        clast = cam.last._iNext,
+        wcnt = 0,
+        ccnt = 0;
+
+    //count world objects
+    do {
+        wcnt++;
+        wld = wld._iNext
+    } while(wld !== wlast);
+
+    //count camera objects
+    do {
+        ccnt++;
+        cam = cam._iNext;
+    } while(cam !== clast);
+
+    //set the element values
+    gf.debug.ui.setText(gf.debug._stats.wld.firstElementChild, wcnt);
+    gf.debug.ui.setText(gf.debug._stats.cam.firstElementChild, ccnt);
 };
-/*
-
-//update the number of sprites every couple seconds (instead of every frame)
-//since it is so expensive
-setInterval(function() {
-    if(gf.debug._stats && gf.debug._stats.obj) {
-        //count objects in active state
-        var c = 0,
-            s = gf.debug.game.activeState,
-            wld = s.world,
-            cam = s.camera;
-
-        while(wld) {
-            c++;
-            wld = wld._iNext;
-        }
-
-        while(cam) {
-            c++;
-            cam = cam._iNext;
-        }
-
-        gf.debug.ui.setText(gf.debug._stats.obj.firstElementChild, c);
-
-        //log the event to the performance graph
-        if(gf.debug.logObjectCountEvent)
-            gf.debug.logEvent('debug_count_objects');
-    }
-}, 2000);
-*/
