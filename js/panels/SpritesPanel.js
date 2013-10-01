@@ -5,7 +5,6 @@ gf.debug.SpritesPanel = function(game) {
     this.title = 'Sprites';
 
     this.gfx = new gf.PIXI.Graphics();
-    this.game.world.add.obj(this.gfx);
 
     this.style = {
         _defaultShape: {
@@ -28,39 +27,51 @@ gf.debug.SpritesPanel = function(game) {
     this.showing = {
         shapes: false,
         tree: false
-    }
+    };
 };
 
  gf.inherit(gf.debug.SpritesPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this),
-            pad = document.createElement('div'),
-            col = document.createElement('div');
+            pad = document.createElement('div');
 
-        // Show colliders
-        gf.debug.ui.addClass(col, 'checkbox');
-        gf.debug.ui.setHtml(col,
+        // Show Shapes
+        var shapes = document.createElement('div');
+        gf.debug.ui.addClass(shapes, 'checkbox');
+        gf.debug.ui.setHtml(shapes,
             '<input type="checkbox" value="" id="gf_debug_toggleShapes" class="gf_debug_toggleShapes" name="check" />' +
             '<label for="gf_debug_toggleShapes"></label>' +
-            '<span>Draw Collider Shapes</span>' +
-            '<br/>' +
+            '<span>Draw Collider Shapes</span>'
+        );
+        gf.debug.ui.bindDelegate(shapes, 'click', 'gf_debug_toggleShapes', this.toggleButton.bind(this, 'shapes'), 'input');
+        pad.appendChild(shapes);
+
+        // Show QuadTree
+        var tree = document.createElement('div');
+        gf.debug.ui.addClass(tree, 'checkbox');
+        gf.debug.ui.setHtml(tree,
             '<input type="checkbox" value="" id="gf_debug_toggleQuadTree" class="gf_debug_toggleQuadTree" name="check" />' +
             '<label for="gf_debug_toggleQuadTree"></label>' +
             '<span>Draw QuadTree</span>'
         );
-        gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleShapes', this.toggle.bind(this, 'shapes'), 'input');
-        gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleQuadTree', this.toggle.bind(this, 'tree'), 'input');
-        pad.appendChild(col);
+        gf.debug.ui.bindDelegate(tree, 'click', 'gf_debug_toggleQuadTree', this.toggleButton.bind(this, 'tree'), 'input');
+        pad.appendChild(tree);
 
         div.appendChild(pad);
 
         return div;
     },
-    toggle: function(type) {
+    toggleButton: function(type) {
         this.showing[type] = !this.showing[type];
     },
     tick: function() {
         this.gfx.clear();
+
+        //ensure always on top
+        if(!this.showing.shapes && !this.showing.tree)
+            return this._updateGfx(true);
+        else
+            this._updateGfx();
 
         //draw all the bodies
         if(this.showing.shapes) {
@@ -81,6 +92,15 @@ gf.debug.SpritesPanel = function(game) {
                 this.style.tree,
                 this.gfx
             );
+        }
+    },
+    _updateGfx: function(rm) {
+        if(rm) {
+            if(this.gfx.parent)
+                this.gfx.parent.removeChild(this.gfx);
+        } else {
+            if(!this.gfx.parent)
+                this.game.world.add.obj(this.gfx);
         }
     }
 });

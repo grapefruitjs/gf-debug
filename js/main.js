@@ -90,7 +90,6 @@ gf.debug.logEvent = function(name) {
 gf.debug.drawBodyShape = function(body, style, gfx) {
     var shape = body.shape,
         p = shape.position,
-        style = body.sensor ? self.style.sensor : self.style._default,
         game = this.game;
 
     //setup gfx
@@ -149,6 +148,8 @@ gf.debug.drawBodyShape = function(body, style, gfx) {
  * @return {Graphics} The graphics object used to draw the tree
  */
 gf.debug.drawQuadTree = function(tree, style, gfx) {
+    var game = this.game;
+
     //setup gfx
     gfx = gfx || (function() {
                     var g = new gf.PIXI.Graphics();
@@ -156,7 +157,7 @@ gf.debug.drawQuadTree = function(tree, style, gfx) {
                     return g;
                 })();
 
-    tree = tree || this.game.physics.tree;
+    tree = tree || game.physics.tree;
 
     //setup style
     style = style || {};
@@ -177,7 +178,7 @@ gf.debug.drawQuadTree = function(tree, style, gfx) {
 
     //draw each node
     if(tree.nodes.length) {
-        for(i = 0; i < tree.nodes.length; ++i) {
+        for(var i = 0; i < tree.nodes.length; ++i) {
             //recurse for children
             this.drawQuadTree(tree.nodes[i], style, gfx);
         }
@@ -299,7 +300,7 @@ gf.debug._statsTick = function() {
     //count world objects
     do {
         wcnt++;
-        wld = wld._iNext
+        wld = wld._iNext;
     } while(wld !== wlast);
 
     //count camera objects
