@@ -47,5 +47,19 @@ gf.debug.ui = {
                 dom.style[key] = style[key];
             }
         }
+    },
+
+    empty: function(dom) {
+        while(box.firstChild) {
+          box.removeChild(box.firstChild);
+        }
+    },
+
+    show: function(dom) {
+        this.setStyle(dom, 'display', 'block');
+    },
+
+    hide: function(dom) {
+        this.setStyle(dom, 'display', 'none');
     }
 };

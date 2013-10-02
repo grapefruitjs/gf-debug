@@ -1,4 +1,4 @@
-gf.debug.Minimap = function(container, game) {
+gf.debug.Minimap = function(container, state) {
     this.canvas = document.createElement('canvas');
     this.prerenderCanvas = document.createElement('canvas');
 
@@ -7,53 +7,55 @@ gf.debug.Minimap = function(container, game) {
     this.ctx = this.canvas.getContext('2d');
     this.pctx = this.prerenderCanvas.getContext('2d');
 
-    this.cachedpos = new gf.Vector();
-    this.mapimage = null;
-    this.game = game;
+    this.world = state.world;
+    this.camera = state.camera;
+
     this.scale = 0.25;
+
+    this._hasRendered = false;
 
     this.viewportRectColor = 'rgba(255, 0, 255, 1)';
 };
 
  gf.inherit(gf.debug.Minimap, Object, {
-    render: function() {
-        if(!this.game.world)
+    show: function() {
+        gf.debug.show(this.canvas);
+    },
+    hide: function() {
+        gf.debug.hide(this.canvas);
+    },
+    render: function(full) {
+        if(!this.map)
             return;
 
-        var world = this.game.world;
+        if(full || !this._hasRendered) {
+            this._hasRendered = true;
 
-        //if the world changes, prerender an image for it
-        if(!this.cachedworld || this.cachedworld !== world) {
-            this.cachedworld = world;
+            this.canvas.width = this.prerenderCanvas.width = (this.map.size.x * this.map.tileSize.x * this.scale);
+            this.canvas.height = this.prerenderCanvas.height = (this.map.size.y * this.map.tileSize.y * this.scale);
 
-            this.canvas.width = this.prerenderCanvas.width = (world.size.x * world.tileSize.x * this.scale);
-            this.canvas.height = this.prerenderCanvas.height = (world.size.y * world.tileSize.y * this.scale);
-
+            //pre renders the tilemaps to the prerenderCanvas
             this.prerender();
         }
-
-        //only render when moving
-        if(this.cachedpos && this.cachedpos.x === world.position.x && this.cachedpos === world.position.y)
-            return;
-
-        //update cached position
-        this.cachedpos.x = world.position.x;
-        this.cachedpos.y = world.position.y;
 
         //redraw
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawMap();
-        //this.drawObjects();
-        //this.drawViewport();
+        this.drawObjects();
+        this.drawViewport();
     },
     drawMap: function() {
-        //draw the prerendered map image
+        //draw the prerendered map canvas
         this.ctx.drawImage(this.prerenderCanvas, 0, 0);
-
+    },
+    drawObjects: function() {
+        // NOT YET IMPLEMENTED
+    },
+    drawViewport: function() {
         //draw the viewport
-        var w = this.game.world,
+        var w = this.world,
             p = w.position,
-            c = this.game.camera,
+            c = this.camera,
             s = this.scale;
 
         this.ctx.strokeStyle = this.viewportRectColor;
