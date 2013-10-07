@@ -48,8 +48,8 @@ gf.debug.SpritesPanel = function(game) {
             '<label for="gf_debug_toggleQuadTree"></label>' +
             '<span>Draw QuadTree</span>'
         );
-        gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleShapes', this.toggle.bind(this, 'shapes'), 'input');
-        gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleQuadTree', this.toggle.bind(this, 'tree'), 'input');
+        gf.debug.ui.delegate(col, 'click', '.gf_debug_toggleShapes', this.toggle.bind(this, 'shapes'));
+        gf.debug.ui.delegate(col, 'click', '.gf_debug_toggleQuadTree', this.toggle.bind(this, 'tree'));
         pad.appendChild(col);
 
         div.appendChild(pad);

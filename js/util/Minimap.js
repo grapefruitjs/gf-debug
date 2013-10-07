@@ -15,17 +15,21 @@ gf.debug.Minimap = function(container, state) {
     this._hasRendered = false;
 
     this.viewportRectColor = 'rgba(255, 0, 255, 1)';
+
+    this.active = true;
 };
 
  gf.inherit(gf.debug.Minimap, Object, {
     show: function() {
         gf.debug.show(this.canvas);
+        this.active = true;
     },
     hide: function() {
         gf.debug.hide(this.canvas);
+        this.active = false;
     },
     render: function(full) {
-        if(!this.map)
+        if(!this.map || !this.active)
             return;
 
         if(full || !this._hasRendered) {

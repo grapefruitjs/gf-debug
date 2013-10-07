@@ -190,7 +190,7 @@ gf.debug._bindEvents = function() {
     var activePanel,
         self = this;
 
-    this.ui.bindDelegate(this._bar, 'click', 'gf_debug_menu_item', function(e) {
+    this.ui.delegate(this._bar, 'click', '.gf_debug_menu_item', function(e) {
         var panel = self.panels[e.target.className.replace(/gf_debug_menu_item|active/g, '').trim()];
 
         if(!panel)
