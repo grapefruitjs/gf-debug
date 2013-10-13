@@ -7,7 +7,7 @@ gf.debug.PerformancePanel = function(game) {
     this.active = false;
 };
 
- gf.inherit(gf.debug.PerformancePanel, gf.debug.Panel, {
+gf.inherit(gf.debug.PerformancePanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 

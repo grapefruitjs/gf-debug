@@ -12,7 +12,7 @@ gf.debug.MapPanel = function (game) {
     };
 };
 
- gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
+gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 

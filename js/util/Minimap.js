@@ -19,7 +19,7 @@ gf.debug.Minimap = function(container, state) {
     this.active = true;
 };
 
- gf.inherit(gf.debug.Minimap, Object, {
+gf.inherit(gf.debug.Minimap, Object, {
     show: function() {
         gf.debug.show(this.canvas);
         this.active = true;
@@ -91,9 +91,7 @@ gf.debug.Minimap = function(container, state) {
         }
     },
     prerenderLayer: function(layer, map) {
-        var size = map.size,
-            tsx = map.tileSize.x * this.scale,
-            tsy = map.tileSize.y * this.scale;
+        var size = map.size;
 
         //render the layer one tile at a time
         for(var x = 0, xl = size.x; x < xl; ++x) {
@@ -101,11 +99,11 @@ gf.debug.Minimap = function(container, state) {
                 var id = (x + (y * size.x)),
                     tid = layer.tileIds[id];
 
-                this.prerenderTile(tid, map);
+                this.prerenderTile(tid, map, x, y);
             }
         }
     },
-    prerenderTile: function(tid, x, y) {
+    prerenderTile: function(tid, map, x, y) {
         var set = map.getTileset(tid),
             tx = set.getTileTexture(tid);
 

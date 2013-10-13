@@ -5,10 +5,6 @@ gf.plugin.register({}, 'debug');
 //this value in the package.json (under version)
 gf.debug.version = '@@VERSION';
 
-//the version of gf that is required for this plugin to function correctly.
-//Placed in by grunt when built you can change this value in the package.json (under engines.gf)
-gf.debug.gfVersion = '@@GF_VERSION';
-
 //on tick funciton to replace the gf.Game.prototype._tick function with
 //will call _super to run the normal tick, then tick the panels as well
 gf.debug.onTick = function() {
@@ -90,7 +86,6 @@ gf.debug.logEvent = function(name) {
 gf.debug.drawBodyShape = function(body, style, gfx) {
     var shape = body.shape,
         p = shape.position,
-        style = body.sensor ? self.style.sensor : self.style._default,
         game = this.game;
 
     //setup gfx
@@ -149,10 +144,12 @@ gf.debug.drawBodyShape = function(body, style, gfx) {
  * @return {Graphics} The graphics object used to draw the tree
  */
 gf.debug.drawQuadTree = function(tree, style, gfx) {
+    var self = this;
+
     //setup gfx
     gfx = gfx || (function() {
                     var g = new gf.PIXI.Graphics();
-                    game.world.add.obj(g);
+                    self.game.world.add.obj(g);
                     return g;
                 })();
 
@@ -177,7 +174,7 @@ gf.debug.drawQuadTree = function(tree, style, gfx) {
 
     //draw each node
     if(tree.nodes.length) {
-        for(i = 0; i < tree.nodes.length; ++i) {
+        for(var i = 0; i < tree.nodes.length; ++i) {
             //recurse for children
             this.drawQuadTree(tree.nodes[i], style, gfx);
         }

@@ -4,7 +4,7 @@
  * Copyright (c) 2013, Chad Engler
  * https://github.com/grapefruitjs/gf-debug
  *
- * Compiled: 2013-09-29
+ * Compiled: 2013-10-13
  *
  * GrapeFruit Debug Module is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license.php
@@ -19,22 +19,24 @@ gf.plugin.register({}, 'debug');
 //this value in the package.json (under version)
 gf.debug.version = '0.0.1';
 
-//the version of gf that is required for this plugin to function correctly.
-//Placed in by grunt when built you can change this value in the package.json (under engines.gf)
-gf.debug.gfVersion = '0.0.x';
-
 //on tick funciton to replace the gf.Game.prototype._tick function with
 //will call _super to run the normal tick, then tick the panels as well
 gf.debug.onTick = function() {
     this._super();
 
+    var dStart = gf.debug.game.clock.now(),
+        dEnd;
+
     gf.debug._statsTick();
 
     if(gf.debug.panels) {
-        //gf.debug.panels.map.tick();
+        gf.debug.panels.map.tick();
         gf.debug.panels.performance.tick();
         gf.debug.panels.sprites.tick();
     }
+
+    dEnd = gf.debug.game.clock.now();
+    gf.debug.game.timings.__debugLastDiff = dEnd - dStart;
 };
 
 /**
@@ -82,11 +84,124 @@ gf.debug.logEvent = function(name) {
         this.panels.performance.logEvent(name);
 };
 
+/**
+ * Draws the body of a sprite
+ *
+ * @method drawBodyShape
+ * @param body {Body} The body to draw a visual representation of
+ * @param [style] {Object} The style of the line draws
+ * @param [style.size=1] {Number} The thickness of the line stroke
+ * @param [style.color=0xff2222] {Number} The color of the line stroke
+ * @param [style.alpha=1] {Number} The opacity of the line stroke [0 - 1]
+ * @param [gfx] {Graphics} The graphics object to use to draw with, if
+ *      none is passed a new one is created and added ot the world.
+ * @return {Graphics} The graphics object used to draw the shape
+ */
+gf.debug.drawBodyShape = function(body, style, gfx) {
+    var shape = body.shape,
+        p = shape.position,
+        game = this.game;
+
+    //setup gfx
+    gfx = gfx || (function() {
+                    var g = new gf.PIXI.Graphics();
+                    game.world.add.obj(g);
+                    return g;
+                })();
+
+    //setup style
+    style = style || {};
+
+    gfx.lineStyle(
+        style.size !== undefined ? style.size : 1,
+        style.color !== undefined ? style.color : 0xff2222,
+        style.alpha !== undefined ? style.alpha : 1
+    );
+
+    //draw circle
+    if(shape._shapetype === gf.SHAPE.CIRCLE) {
+        //var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
+        //    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
+
+        gfx.drawCircle(p.x, p.y, shape.radius);
+    }
+    //draw polygon
+    else {
+        var pt = shape.points[0];
+
+        gfx.moveTo(p.x + pt.x, p.y + pt.y);
+
+        for(var x = 1; x < shape.points.length; x++) {
+            gfx.lineTo(
+                p.x + shape.points[x].x,
+                p.y + shape.points[x].y
+            );
+        }
+
+        gfx.lineTo(p.x + pt.x, p.y + pt.y);
+    }
+
+    return gfx;
+};
+
+/**
+ * Draws the quadtree used by physics onto the screen
+ *
+ * @method drawQuadTree
+ * @param [tree=game.physics.tree] {QuadTree} The quadtree to draw, generally this is for recursing
+ * @param [style] {Object} The style of the line draws
+ * @param [style.size=1] {Number} The thickness of the line stroke
+ * @param [style.color=0x2222ff] {Number} The color of the line stroke
+ * @param [style.alpha=1] {Number} The opacity of the line stroke [0 - 1]
+ * @param [gfx] {Graphics} The graphics object to use to draw with, if
+ *      none is passed a new one is created and added ot the world.
+ * @return {Graphics} The graphics object used to draw the tree
+ */
+gf.debug.drawQuadTree = function(tree, style, gfx) {
+    var self = this;
+
+    //setup gfx
+    gfx = gfx || (function() {
+                    var g = new gf.PIXI.Graphics();
+                    self.game.world.add.obj(g);
+                    return g;
+                })();
+
+    tree = tree || this.game.physics.tree;
+
+    //setup style
+    style = style || {};
+
+    gfx.lineStyle(
+        style.size !== undefined ? style.size : 1,
+        style.color !== undefined ? style.color : 0x2222ff,
+        style.alpha !== undefined ? style.alpha : 1
+    );
+
+    //draw our bounds
+    gfx.drawRect(
+        tree.bounds.x,
+        tree.bounds.y,
+        tree.bounds.width,
+        tree.bounds.height
+    );
+
+    //draw each node
+    if(tree.nodes.length) {
+        for(var i = 0; i < tree.nodes.length; ++i) {
+            //recurse for children
+            this.drawQuadTree(tree.nodes[i], style, gfx);
+        }
+    }
+
+    return gfx;
+};
+
 gf.debug._bindEvents = function() {
     var activePanel,
         self = this;
 
-    this.ui.bindDelegate(this._bar, 'click', 'gf_debug_menu_item', function(e) {
+    this.ui.delegate(this._bar, 'click', '.gf_debug_menu_item', function(e) {
         var panel = self.panels[e.target.className.replace(/gf_debug_menu_item|active/g, '').trim()];
 
         if(!panel)
@@ -215,7 +330,7 @@ gf.debug.Panel = function(game) {
     this.title = '';
 };
 
- gf.inherit(gf.debug.Panel, Object, {
+gf.inherit(gf.debug.Panel, Object, {
     //builds the html for a panel
     createPanelElement: function() {
         var div = this._panel = document.createElement('div');
@@ -255,7 +370,7 @@ gf.debug.GamepadPanel = function(game) {
     this.bindEvents();
 };
 
- gf.inherit(gf.debug.GamepadPanel, gf.debug.Panel, {
+gf.inherit(gf.debug.GamepadPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
@@ -302,7 +417,7 @@ gf.debug.PerformancePanel = function(game) {
     this.active = false;
 };
 
- gf.inherit(gf.debug.PerformancePanel, gf.debug.Panel, {
+gf.inherit(gf.debug.PerformancePanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
@@ -312,9 +427,10 @@ gf.debug.PerformancePanel = function(game) {
             phys: 'rgba(80, 220, 200, 1)',
             user: 'rgba(200, 80, 220, 1)',
             draw: 'rgba(220, 80, 80, 1)',
+            debug: 'rgba(220, 220, 80, 1)',
             event: 'rgba(200, 200, 200, 0.6)'
         });
-        this.graph.max = 50;
+        this.graph.max = 30;
 
         return div;
     },
@@ -328,6 +444,7 @@ gf.debug.PerformancePanel = function(game) {
                 camera: t.cameraEnd - t.cameraStart,
                 phys: t.physicsEnd - t.physicsStart,
                 user: t.userFuncsEnd - t.userFuncsStart,
+                debug: t.__debugLastDiff || 0,
                 draw: t.renderEnd - t.renderStart
             },
             evt = this.eventQueue.shift();
@@ -348,22 +465,33 @@ gf.debug.SpritesPanel = function(game) {
     this.title = 'Sprites';
 
     this.gfx = new gf.PIXI.Graphics();
+    this.game.world.add.obj(this.gfx);
 
     this.style = {
-        _default: {
+        _defaultShape: {
             size: 1,
             color: 0xff2222,
             alpha: 1
         },
-        sensor: {
+        sensorShape: {
             size: 1,
             color: 0x22ff22,
             alpha: 1
+        },
+        tree: {
+            size: 1,
+            color: 0x2222ff,
+            alpha: 1
         }
+    };
+
+    this.showing = {
+        shapes: false,
+        tree: false
     };
 };
 
- gf.inherit(gf.debug.SpritesPanel, gf.debug.Panel, {
+gf.inherit(gf.debug.SpritesPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this),
             pad = document.createElement('div'),
@@ -372,71 +500,48 @@ gf.debug.SpritesPanel = function(game) {
         // Show colliders
         gf.debug.ui.addClass(col, 'checkbox');
         gf.debug.ui.setHtml(col,
-            '<input type="checkbox" value="None" id="gf_debug_toggleCollisions" class="gf_debug_toggleCollisions" name="check" />' +
-            '<label for="gf_debug_toggleCollisions"></label>' +
-            '<span>Show sprite colliders</span>'
+            '<input type="checkbox" value="" id="gf_debug_toggleShapes" class="gf_debug_toggleShapes" name="check" />' +
+            '<label for="gf_debug_toggleShapes"></label>' +
+            '<span>Draw Collider Shapes</span>' +
+            '<br/>' +
+            '<input type="checkbox" value="" id="gf_debug_toggleQuadTree" class="gf_debug_toggleQuadTree" name="check" />' +
+            '<label for="gf_debug_toggleQuadTree"></label>' +
+            '<span>Draw QuadTree</span>'
         );
-        gf.debug.ui.bindDelegate(col, 'click', 'gf_debug_toggleCollisions', this.toggleCollisions.bind(this), 'input');
+        gf.debug.ui.delegate(col, 'click', '.gf_debug_toggleShapes', this.toggleType.bind(this, 'shapes'));
+        gf.debug.ui.delegate(col, 'click', '.gf_debug_toggleQuadTree', this.toggleType.bind(this, 'tree'));
         pad.appendChild(col);
 
         div.appendChild(pad);
 
         return div;
     },
-    toggleCollisions: function() {
-        this.showing = !this.showing;
-
-        if(this.showing) {
-            this.game.world.addChild(this.gfx);
-            this._drawPhysics();
-        } else {
-            if(this.gfx.parent)
-                this.gfx.parent.removeChild(this.gfx);
-        }
+    toggleType: function(type) {
+        this.showing[type] = !this.showing[type];
     },
     tick: function() {
-        if(this.showing) {
-            this._drawPhysics();
-        }
-    },
-    _drawPhysics: function() {
-        var self = this,
-            g = this.gfx;
-
         this.gfx.clear();
-        this.game.physics.space.eachShape(function(shape) {
-            if(!shape.body) return;
 
-            var body = shape.body,
-                p = body.p,
-                style = shape.sensor ? self.style.sensor : self.style._default;
-
-            g.lineStyle(style.size, style.color, style.alpha);
-
-            //circle
-            if(shape.type === 'circle') {
-                var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
-                    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
-
-                g.drawCircle(cx, cy, shape.r);
+        //draw all the bodies
+        if(this.showing.shapes) {
+            var bods = this.game.physics.bodies;
+            for(var i = 0; i < bods.length; ++i) {
+                gf.debug.drawBodyShape(
+                    bods[i],
+                    bods[i].sensor ? this.style.sensorShape : this.style._defaultShape,
+                    this.gfx
+                );
             }
-            //polygon
-            else {
-                var sx = shape.verts[0],
-                    sy = shape.verts[1];
+        }
 
-                g.moveTo(p.x + sx, p.y + sy);
-
-                for(var i = 2; i < shape.verts.length; i+=2) {
-                    g.lineTo(
-                        p.x + shape.verts[i],
-                        p.y + shape.verts[i + 1]
-                    );
-                }
-
-                g.lineTo(p.x + sx, p.y + sy);
-            }
-        });
+        //draw the quadtree
+        if(this.showing.tree) {
+            gf.debug.drawQuadTree(
+                this.game.physics.tree,
+                this.style.tree,
+                this.gfx
+            );
+        }
     }
 });
 gf.debug.MapPanel = function (game) {
@@ -444,18 +549,158 @@ gf.debug.MapPanel = function (game) {
 
     this.name = 'map';
     this.title = 'Mini-Map';
+    this.map = null;
+    this.maps = {};
+
+    this._cache = {
+        numStates: 0,
+        state: null
+    };
 };
 
- gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
+gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 
-        this.minimap = new gf.debug.Minimap(div, this.game);
+        this.states = document.createElement('ul');
+        gf.debug.ui.addClass(this.states, 'states');
+        gf.debug.ui.delegate(this.states, 'click', 'li', this.onClickState.bind(this));
+        div.appendChild(this.states);
+
+        this.mapsui = document.createElement('ul');
+        gf.debug.ui.addClass(this.mapsui, 'maps');
+        gf.debug.ui.delegate(this.mapsui, 'click', 'li', this.onClickMap.bind(this));
+        div.appendChild(this.mapsui);
 
         return div;
     },
+    refresh: function() {
+        //build states list
+        this.buildStateList();
+
+        //clear maps/layers
+        gf.debug.ui.empty(this.mapsui);
+
+        //hide current map
+        if(this.map)
+            this.map.hide();
+
+        this.map = null;
+    },
+    buildStateList: function() {
+        gf.debug.ui.empty(this.states);
+
+        var states = this.game.state.states,
+            name, state;
+
+        for(name in states) {
+            state = states[name];
+
+            var li = this.createLi('state', name, state.visible);
+            li.dataset.name = name;
+            this.states.appendChild(li);
+
+            if(!this.maps[name])
+                this.maps[name] = new gf.debug.Minimap(this._panel, state);
+            else
+                this.maps[name].render(true);
+        }
+    },
+    buildMapList: function(state) {
+        gf.debug.ui.empty(this.mapsui);
+
+        //loop through each child of the selected state
+        for(var i = 0; i < state.world.children; ++i) {
+            var child = state.world.children[i];
+
+            //if this is a tilemap show it and all layers
+            if(child instanceof gf.Tilemap) {
+                var li = this.createLi('map', child._cachekey, child.visible);
+                li.dataset.index = i;
+
+                //if there are any children create a sublist
+                if(child.children.length) {
+                    var ul = document.createElement('ul'),
+                        add = false;
+
+                    for(var l = 0; l < child.children; ++l) {
+                        var layer = child.children[l];
+
+                        //only add tilelayers
+                        if(layer.type === 'tilelayer') {
+                            var lli = this.createLi('layer', layer.name, layer.visible);
+
+                            lli.dataset.mapIndex = i;
+                            lli.dataset.index = l;
+
+                            ul.appendChild(lli);
+
+                            add = true;
+                        }
+                    }
+
+                    //add the sublist to the map li
+                    if(add)
+                        li.appendChild(ul);
+                }
+
+                //add the map li to the list
+                this.mapsui.appendChild(li);
+            }
+        }
+    },
+    createLi: function(cls, text, active) {
+        var li = document.createElement('li');
+
+        gf.debug.ui.addClass(li, cls);
+        gf.debug.ui.setText(li, text);
+
+        if(active)
+            gf.debug.ui.addClass('active');
+
+        return li;
+    },
+    onClickState: function(e) {
+        var data = e.target.dataset;
+
+        if(this.map)
+            this.map.hide();
+
+        this.map = this.maps[data.name];
+        this.map.show();
+        this.buildMapList(this.game.state.states[data.name]);
+    },
+    onClickMap: function(e) {
+        var data = e.target.dataset,
+            obj;
+
+        if(data.mapIndex !== undefined) {
+            obj = this._cache.state.world.children[data.mapIndex].children[data.index];
+        } else {
+            obj = this._cache.state.world.children[data.index];
+        }
+
+        //toggle visibility
+        obj.visible = !obj.visible;
+
+        if(obj.visible)
+            e.target.addClass('active');
+        else
+            e.target.removeClass('active');
+    },
     tick: function() {
-        this.minimap.render();
+        if(!this.active)
+            return;
+
+        if(this._cache.numStates !== this.game.state.count || this._cache.state !== this.game.state.active) {
+            this._cache.numStates = this.game.state.count;
+            this._cache.state = this.game.state.active;
+            this.refresh();
+            this.map = this.maps[this.game.state.active.name];
+        }
+
+        if(this.map)
+            this.map.render();
     }
 });
 gf.debug.Graph = function(container, width, height, dataStyles) {
@@ -505,7 +750,7 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
         this.styles.event = 'gray';
 };
 
- gf.inherit(gf.debug.Graph, Object, {
+gf.inherit(gf.debug.Graph, Object, {
     addData: function(values) {
         this.data.push(values);
 
@@ -649,7 +894,7 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
         this.dataScroll[1] += lw;
     }
 });
-gf.debug.Minimap = function(container, game) {
+gf.debug.Minimap = function(container, state) {
     this.canvas = document.createElement('canvas');
     this.prerenderCanvas = document.createElement('canvas');
 
@@ -658,53 +903,59 @@ gf.debug.Minimap = function(container, game) {
     this.ctx = this.canvas.getContext('2d');
     this.pctx = this.prerenderCanvas.getContext('2d');
 
-    this.cachedpos = new gf.Vector();
-    this.mapimage = null;
-    this.game = game;
+    this.world = state.world;
+    this.camera = state.camera;
+
     this.scale = 0.25;
 
+    this._hasRendered = false;
+
     this.viewportRectColor = 'rgba(255, 0, 255, 1)';
+
+    this.active = true;
 };
 
- gf.inherit(gf.debug.Minimap, Object, {
-    render: function() {
-        if(!this.game.world)
+gf.inherit(gf.debug.Minimap, Object, {
+    show: function() {
+        gf.debug.show(this.canvas);
+        this.active = true;
+    },
+    hide: function() {
+        gf.debug.hide(this.canvas);
+        this.active = false;
+    },
+    render: function(full) {
+        if(!this.map || !this.active)
             return;
 
-        var world = this.game.world;
+        if(full || !this._hasRendered) {
+            this._hasRendered = true;
 
-        //if the world changes, prerender an image for it
-        if(!this.cachedworld || this.cachedworld !== world) {
-            this.cachedworld = world;
+            this.canvas.width = this.prerenderCanvas.width = (this.map.size.x * this.map.tileSize.x * this.scale);
+            this.canvas.height = this.prerenderCanvas.height = (this.map.size.y * this.map.tileSize.y * this.scale);
 
-            this.canvas.width = this.prerenderCanvas.width = (world.size.x * world.tileSize.x * this.scale);
-            this.canvas.height = this.prerenderCanvas.height = (world.size.y * world.tileSize.y * this.scale);
-
+            //pre renders the tilemaps to the prerenderCanvas
             this.prerender();
         }
-
-        //only render when moving
-        if(this.cachedpos && this.cachedpos.x === world.position.x && this.cachedpos === world.position.y)
-            return;
-
-        //update cached position
-        this.cachedpos.x = world.position.x;
-        this.cachedpos.y = world.position.y;
 
         //redraw
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawMap();
-        //this.drawObjects();
-        //this.drawViewport();
+        this.drawObjects();
+        this.drawViewport();
     },
     drawMap: function() {
-        //draw the prerendered map image
+        //draw the prerendered map canvas
         this.ctx.drawImage(this.prerenderCanvas, 0, 0);
-
+    },
+    drawObjects: function() {
+        // NOT YET IMPLEMENTED
+    },
+    drawViewport: function() {
         //draw the viewport
-        var w = this.game.world,
+        var w = this.world,
             p = w.position,
-            c = this.game.camera,
+            c = this.camera,
             s = this.scale;
 
         this.ctx.strokeStyle = this.viewportRectColor;
@@ -716,46 +967,56 @@ gf.debug.Minimap = function(container, game) {
         );
     },
     prerender: function() {
-        var world = this.game.world,
-            size = world.size,
-            tsx = world.tileSize.x * this.scale,
-            tsy = world.tileSize.y * this.scale;
+        var world = this.game.world;
 
-        for(var l = 0, ll = world.children.length; l < ll; ++l) {
-            var layer = world.children[l];
-
-            //if it is a TiledLayer
-            if(layer.tileIds && layer.visible) {
-                for(var x = 0, xl = size.x; x < xl; ++x) {
-                    for(var y = 0, yl = size.y; y < yl; ++y) {
-                        var id = (x + (y * size.x)),
-                            tid = layer.tileIds[id],
-                            set = world.getTileset(tid),
-                            tx;
-
-                        if(set) {
-                            tx = set.getTileTexture(tid);
-                            this.prerenderTile(tx, x * tsx, y * tsy);
-                        }
-                    }
-                }
+        //for each child of world, if it is visible and a tilemap, prerender it
+        for(var w = 0, wl = world.children.length; w < wl; ++w) {
+            if(world.children[w].visible && world.children[w] instanceof gf.Tilemap) {
+                this.prerenderMap(world.children[w]);
             }
         }
     },
-    prerenderTile: function(tile, x, y) {
-        var frame = tile.frame;
+    prerenderMap: function(map) {
+        for(var l = 0, ll = map.children.length; l < ll; ++l) {
+            var layer = map.children[l];
+
+            //if it is a Tilelayer and is visible
+            if(layer.tileIds && layer.visible) {
+                this.prerenderLayer(layer, map);
+            }
+        }
+    },
+    prerenderLayer: function(layer, map) {
+        var size = map.size;
+
+        //render the layer one tile at a time
+        for(var x = 0, xl = size.x; x < xl; ++x) {
+            for(var y = 0, yl = size.y; y < yl; ++y) {
+                var id = (x + (y * size.x)),
+                    tid = layer.tileIds[id];
+
+                this.prerenderTile(tid, map, x, y);
+            }
+        }
+    },
+    prerenderTile: function(tid, map, x, y) {
+        var set = map.getTileset(tid),
+            tx = set.getTileTexture(tid);
+
+        if(!set || !tx)
+            return;
 
         //from pixi canvas renderer
         this.pctx.drawImage(
-            tile.baseTexture.source,
-            frame.x,
-            frame.y,
-            frame.width,
-            frame.height,
+            tx.baseTexture.source,
+            tx.frame.x,
+            tx.frame.y,
+            tx.frame.width,
+            tx.frame.height,
             x,
             y,
-            frame.width * this.scale,
-            frame.height * this.scale
+            tx.frame.width * this.scale,
+            tx.frame.height * this.scale
         );
     }
 });
@@ -834,7 +1095,7 @@ gf.debug.Gamepad = function() {
     el.innerHTML = template;
 };
 
- gf.inherit(gf.debug.Gamepad, Object, {
+gf.inherit(gf.debug.Gamepad, Object, {
     updateButton: function(status) {
         var buttonEl = this.element.querySelector('[name="' + btnIds[status.code] + '"]'),
             labelEl = this.element.querySelector('label[for="' + btnIds[status.code] + '"]');
@@ -878,16 +1139,10 @@ gf.debug.Gamepad = function() {
 
 //Some general dom helpers
 gf.debug.ui = {
-    bindDelegate: function(dom, evt, cls, fn, name) {
-        name = name ? name.toUpperCase() : 'DIV';
-
+    delegate: function(dom, evt, selector, fn) {
         dom.addEventListener(evt, function(e) {
-            if(e.target && e.target.nodeName.toUpperCase() === name) {
-                var classes = e.target.className.split(' ');
-
-                if(classes && classes.indexOf(cls) !== -1) {
-                    if(fn) fn(e);
-                }
+            if(e.target && e.target.matches(selector)) {
+                if(fn) fn(e);
             }
         });
     },
@@ -925,7 +1180,44 @@ gf.debug.ui = {
                 dom.style[key] = style[key];
             }
         }
+    },
+
+    empty: function(dom) {
+        while(dom.firstChild) {
+            dom.removeChild(dom.firstChild);
+        }
+    },
+
+    show: function(dom) {
+        this.setStyle(dom, 'display', 'block');
+    },
+
+    hide: function(dom) {
+        this.setStyle(dom, 'display', 'none');
     }
 };
+
+// polyfill for matchesSelector
+if (!HTMLElement.prototype.matches) {
+    var htmlprot = HTMLElement.prototype;
+
+    htmlprot.matches =
+        htmlprot.matches ||
+        htmlprot.webkitMatchesSelector ||
+        htmlprot.mozMatchesSelector ||
+        htmlprot.msMatchesSelector ||
+        htmlprot.oMatchesSelector ||
+        function (selector) {
+            // poorman's polyfill for matchesSelector
+            var elements = this.parentElement.querySelectorAll(selector),
+                element,
+                i = 0;
+
+            while (element = elements[i++]) {
+                if (element === this) return true;
+            }
+            return false;
+        };
+}
 
 })(window);

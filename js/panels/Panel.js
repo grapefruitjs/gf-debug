@@ -4,7 +4,7 @@ gf.debug.Panel = function(game) {
     this.title = '';
 };
 
- gf.inherit(gf.debug.Panel, Object, {
+gf.inherit(gf.debug.Panel, Object, {
     //builds the html for a panel
     createPanelElement: function() {
         var div = this._panel = document.createElement('div');

@@ -28,10 +28,10 @@ gf.debug.SpritesPanel = function(game) {
     this.showing = {
         shapes: false,
         tree: false
-    }
+    };
 };
 
- gf.inherit(gf.debug.SpritesPanel, gf.debug.Panel, {
+gf.inherit(gf.debug.SpritesPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this),
             pad = document.createElement('div'),
@@ -48,15 +48,15 @@ gf.debug.SpritesPanel = function(game) {
             '<label for="gf_debug_toggleQuadTree"></label>' +
             '<span>Draw QuadTree</span>'
         );
-        gf.debug.ui.delegate(col, 'click', '.gf_debug_toggleShapes', this.toggle.bind(this, 'shapes'));
-        gf.debug.ui.delegate(col, 'click', '.gf_debug_toggleQuadTree', this.toggle.bind(this, 'tree'));
+        gf.debug.ui.delegate(col, 'click', '.gf_debug_toggleShapes', this.toggleType.bind(this, 'shapes'));
+        gf.debug.ui.delegate(col, 'click', '.gf_debug_toggleQuadTree', this.toggleType.bind(this, 'tree'));
         pad.appendChild(col);
 
         div.appendChild(pad);
 
         return div;
     },
-    toggle: function(type) {
+    toggleType: function(type) {
         this.showing[type] = !this.showing[type];
     },
     tick: function() {

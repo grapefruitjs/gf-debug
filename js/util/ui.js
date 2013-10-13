@@ -44,8 +44,8 @@ gf.debug.ui = {
     },
 
     empty: function(dom) {
-        while(box.firstChild) {
-          box.removeChild(box.firstChild);
+        while(dom.firstChild) {
+            dom.removeChild(dom.firstChild);
         }
     },
 

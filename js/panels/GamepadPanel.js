@@ -8,7 +8,7 @@ gf.debug.GamepadPanel = function(game) {
     this.bindEvents();
 };
 
- gf.inherit(gf.debug.GamepadPanel, gf.debug.Panel, {
+gf.inherit(gf.debug.GamepadPanel, gf.debug.Panel, {
     createPanelElement: function() {
         var div = gf.debug.Panel.prototype.createPanelElement.call(this);
 

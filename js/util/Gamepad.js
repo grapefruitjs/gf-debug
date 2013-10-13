@@ -73,7 +73,7 @@ gf.debug.Gamepad = function() {
     el.innerHTML = template;
 };
 
- gf.inherit(gf.debug.Gamepad, Object, {
+gf.inherit(gf.debug.Gamepad, Object, {
     updateButton: function(status) {
         var buttonEl = this.element.querySelector('[name="' + btnIds[status.code] + '"]'),
             labelEl = this.element.querySelector('label[for="' + btnIds[status.code] + '"]');
