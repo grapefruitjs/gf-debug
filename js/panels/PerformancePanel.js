@@ -1,17 +1,16 @@
-gf.debug.PerformancePanel = function(game) {
-    gf.debug.Panel.call(this, game);
+debug.PerformancePanel = function(game) {
+    debug.Panel.call(this, game);
 
     this.name = 'performance';
     this.title = 'Performance';
     this.eventQueue = [];
-    this.active = false;
 };
 
- gf.inherit(gf.debug.PerformancePanel, gf.debug.Panel, {
+gf.inherit(debug.PerformancePanel, debug.Panel, {
     createPanelElement: function() {
-        var div = gf.debug.Panel.prototype.createPanelElement.call(this);
+        var div = debug.Panel.prototype.createPanelElement.call(this);
 
-        this.graph = new gf.debug.Graph(div, window.innerWidth - 20, 250 - 5, {
+        this.graph = new debug.Graph(div, window.innerWidth - 20, 250 - 5, {
             input: 'rgba(80, 220, 80, 1)',
             camera: 'rgba(80, 80, 220, 1)',
             phys: 'rgba(80, 220, 200, 1)',
@@ -25,9 +24,6 @@ gf.debug.PerformancePanel = function(game) {
         return div;
     },
     tick: function() {
-        if(!this.active)
-            return;
-
         var t = this.game.timings,
             o = {
                 input: t.inputEnd - t.inputStart,

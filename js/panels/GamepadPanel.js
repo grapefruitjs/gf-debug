@@ -1,19 +1,18 @@
-gf.debug.GamepadPanel = function(game) {
-    gf.debug.Panel.call(this, game);
+debug.GamepadPanel = function(game) {
+    debug.Panel.call(this, game);
 
     this.name = 'gamepad';
     this.title = 'Gamepad';
 
-    this.gamepad = new gf.debug.Gamepad();
+    this.gamepad = new debug.Gamepad();
     this.bindEvents();
 };
 
- gf.inherit(gf.debug.GamepadPanel, gf.debug.Panel, {
+gf.inherit(debug.GamepadPanel, debug.Panel, {
     createPanelElement: function() {
-        var div = gf.debug.Panel.prototype.createPanelElement.call(this);
+        var div = debug.Panel.prototype.createPanelElement.call(this);
 
         div.appendChild(this.gamepad.element);
-        window.console.log(this.gamepad.element);
 
         return div;
     },

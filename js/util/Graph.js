@@ -1,4 +1,4 @@
-gf.debug.Graph = function(container, width, height, dataStyles) {
+debug.Graph = function(container, width, height, dataStyles) {
     this.canvas = document.createElement('canvas');
     this.canvas.width = width;
     this.canvas.height = height;
@@ -45,7 +45,7 @@ gf.debug.Graph = function(container, width, height, dataStyles) {
         this.styles.event = 'gray';
 };
 
- gf.inherit(gf.debug.Graph, Object, {
+gf.inherit(debug.Graph, Object, {
     addData: function(values) {
         this.data.push(values);
 

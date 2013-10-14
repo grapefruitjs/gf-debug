@@ -67,13 +67,13 @@ template =
 '</div>' +
 '<div class="gf_debug_gp_name">Grapefruit</div>';
 
-gf.debug.Gamepad = function() {
+debug.Gamepad = function() {
     var el = this.element = document.createElement('div');
     el.classList.add('gf_debug_gp');
     el.innerHTML = template;
 };
 
- gf.inherit(gf.debug.Gamepad, Object, {
+gf.inherit(debug.Gamepad, Object, {
     updateButton: function(status) {
         var buttonEl = this.element.querySelector('[name="' + btnIds[status.code] + '"]'),
             labelEl = this.element.querySelector('label[for="' + btnIds[status.code] + '"]');

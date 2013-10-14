@@ -1,32 +1,29 @@
 //register the plugin to grapefruit
-gf.plugin.register({}, 'debug');
+gf.plugin.register(debug, 'debug');
+window.gfdebug = debug;
 
 //the version of this plugin. Placed in by grunt when built you can change
 //this value in the package.json (under version)
-gf.debug.version = '@@VERSION';
-
-//the version of gf that is required for this plugin to function correctly.
-//Placed in by grunt when built you can change this value in the package.json (under engines.gf)
-gf.debug.gfVersion = '@@GF_VERSION';
+debug.version = '@@VERSION';
 
 //on tick funciton to replace the gf.Game.prototype._tick function with
 //will call _super to run the normal tick, then tick the panels as well
-gf.debug.onTick = function() {
+debug.onTick = function() {
     this._super();
 
-    var dStart = gf.debug.game.clock.now(),
+    var dStart = debug.game.clock.now(),
         dEnd;
 
-    gf.debug._statsTick();
+    debug._statsTick();
 
-    if(gf.debug.panels) {
-        //gf.debug.panels.map.tick();
-        gf.debug.panels.performance.tick();
-        gf.debug.panels.sprites.tick();
+    if(debug.panels) {
+        debug.panels.map.tick();
+        debug.panels.performance.tick();
+        debug.panels.sprites.tick();
     }
 
-    dEnd = gf.debug.game.clock.now();
-    gf.debug.game.timings.__debugLastDiff = dEnd - dStart;
+    dEnd = debug.game.clock.now();
+    debug.game.timings.__debugLastDiff = dEnd - dStart;
 };
 
 /**
@@ -35,9 +32,9 @@ gf.debug.onTick = function() {
  * @method show
  * @param game {gf.Game} the game to debug
  */
-gf.debug.show = function(game) {
+debug.show = function(game) {
     if(!game || !(game instanceof gf.Game))
-        throw 'Please pass a game instance to gf.debug.show!';
+        throw 'Please pass a game instance to debug.show!';
 
     if(this.game)
         throw 'Already debugging a game instance!';
@@ -45,10 +42,10 @@ gf.debug.show = function(game) {
     this.game = game;
 
     this.panels = {
-        map: new gf.debug.MapPanel(game),
-        sprites: new gf.debug.SpritesPanel(game),
-        gamepad: new gf.debug.GamepadPanel(game),
-        performance: new gf.debug.PerformancePanel(game)
+        map: new debug.MapPanel(game),
+        sprites: new debug.SpritesPanel(game),
+        gamepad: new debug.GamepadPanel(game),
+        performance: new debug.PerformancePanel(game)
     };
 
     //patch the tick method
@@ -69,7 +66,7 @@ gf.debug.show = function(game) {
  * @method logEvent
  * @param name {String} the event name to show on the graph
  */
-gf.debug.logEvent = function(name) {
+debug.logEvent = function(name) {
     if(this.panels && this.panels.performance)
         this.panels.performance.logEvent(name);
 };
@@ -87,10 +84,22 @@ gf.debug.logEvent = function(name) {
  *      none is passed a new one is created and added ot the world.
  * @return {Graphics} The graphics object used to draw the shape
  */
-gf.debug.drawBodyShape = function(body, style, gfx) {
+debug.drawBodyShape = function(body, style, gfx) {
     var shape = body.shape,
-        p = shape.position,
+        a = body.sprite.anchor,
+        ax = a !== undefined ? a.x : 0,
+        ay = a !== undefined ? a.y : 0,
+        trans = body.sprite.worldTransform,
+        px = trans[2],
+        py = trans[5],
+        sx = trans[0],
+        sy = trans[4],
+        sw = body.sprite.width * sx,
+        sh = body.sprite.height * sy,
         game = this.game;
+
+    px -= ax * sw;
+    py -= ay * sh;
 
     //setup gfx
     gfx = gfx || (function() {
@@ -113,22 +122,28 @@ gf.debug.drawBodyShape = function(body, style, gfx) {
         //var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
         //    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
 
-        gfx.drawCircle(p.x, p.y, shape.radius);
+        gfx.drawCircle(px + (sw / 2), py + (sh / 2), shape.radius * ((sx + sy) / 2));
     }
     //draw polygon
     else {
         var pt = shape.points[0];
 
-        gfx.moveTo(p.x + pt.x, p.y + pt.y);
+        gfx.moveTo(
+            px + pt.x,
+            py + pt.y
+        );
 
         for(var x = 1; x < shape.points.length; x++) {
             gfx.lineTo(
-                p.x + shape.points[x].x,
-                p.y + shape.points[x].y
+                px + shape.points[x].x * sx,
+                py + shape.points[x].y * sy
             );
         }
 
-        gfx.lineTo(p.x + pt.x, p.y + pt.y);
+        gfx.lineTo(
+            px + pt.x,
+            py + pt.y
+        );
     }
 
     return gfx;
@@ -147,13 +162,13 @@ gf.debug.drawBodyShape = function(body, style, gfx) {
  *      none is passed a new one is created and added ot the world.
  * @return {Graphics} The graphics object used to draw the tree
  */
-gf.debug.drawQuadTree = function(tree, style, gfx) {
-    var game = this.game;
+debug.drawQuadTree = function(tree, style, gfx) {
+    var self = this;
 
     //setup gfx
     gfx = gfx || (function() {
                     var g = new gf.PIXI.Graphics();
-                    game.world.add.obj(g);
+                    self.game.world.add.obj(g);
                     return g;
                 })();
 
@@ -187,11 +202,11 @@ gf.debug.drawQuadTree = function(tree, style, gfx) {
     return gfx;
 };
 
-gf.debug._bindEvents = function() {
+debug._bindEvents = function() {
     var activePanel,
         self = this;
 
-    this.ui.bindDelegate(this._bar, 'click', 'gf_debug_menu_item', function(e) {
+    this.ui.delegate(this._bar, 'click', '.gf_debug_menu_item', function(e) {
         var panel = self.panels[e.target.className.replace(/gf_debug_menu_item|active/g, '').trim()];
 
         if(!panel)
@@ -207,18 +222,13 @@ gf.debug._bindEvents = function() {
             }
         }
 
-        if(panel.name === 'performance')
-            panel.active = true;
-        else
-            self.panels.performance.active = false;
-
         self.ui.addClass(e.target, 'active');
         panel.toggle();
         activePanel = panel;
     });
 };
 
-gf.debug._createElement = function() {
+debug._createElement = function() {
     var c = this._container = document.createElement('div'),
         bar = this._bar = document.createElement('div');
 
@@ -240,7 +250,7 @@ gf.debug._createElement = function() {
     return c;
 };
 
-gf.debug._createMenuHead = function() {
+debug._createMenuHead = function() {
     var div = document.createElement('div');
 
     this.ui.addClass(div, 'gf_debug_head');
@@ -249,7 +259,7 @@ gf.debug._createMenuHead = function() {
     return div;
 };
 
-gf.debug._createMenuStats = function() {
+debug._createMenuStats = function() {
     this._stats = {};
 
     var div = document.createElement('div'),
@@ -279,7 +289,7 @@ gf.debug._createMenuStats = function() {
     return div;
 };
 
-gf.debug._statsTick = function() {
+debug._statsTick = function() {
     var ms = this.game.timings.tickEnd - this.game.timings.tickStart,
         fps = 1000/ms;
 
@@ -310,6 +320,6 @@ gf.debug._statsTick = function() {
     } while(cam !== clast);
 
     //set the element values
-    gf.debug.ui.setText(gf.debug._stats.wld.firstElementChild, wcnt);
-    gf.debug.ui.setText(gf.debug._stats.cam.firstElementChild, ccnt);
+    debug.ui.setText(debug._stats.wld.firstElementChild, wcnt);
+    debug.ui.setText(debug._stats.cam.firstElementChild, ccnt);
 };

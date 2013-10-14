@@ -34,9 +34,5 @@
         "build": "grunt build"
     },
 
-    "engines": {
-        "gf": "0.0.x"
-    },
-
     "private": true
 }
