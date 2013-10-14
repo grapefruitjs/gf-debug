@@ -172,7 +172,7 @@ debug.drawQuadTree = function(tree, style, gfx) {
                     return g;
                 })();
 
-    tree = tree || game.physics.tree;
+    tree = tree || this.game.physics.tree;
 
     //setup style
     style = style || {};
