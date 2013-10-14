@@ -1,36 +1,40 @@
-gf.debug.Panel = function(game) {
+debug.Panel = function(game) {
     this.game = game;
     this.name = '';
     this.title = '';
+    this.active = false;
 };
 
-gf.inherit(gf.debug.Panel, Object, {
+gf.inherit(debug.Panel, Object, {
     //builds the html for a panel
     createPanelElement: function() {
         var div = this._panel = document.createElement('div');
-        gf.debug.ui.addClass(div, 'gf_debug_panel');
-        gf.debug.ui.addClass(div, this.name);
+        debug.ui.addClass(div, 'gf_debug_panel');
+        debug.ui.addClass(div, this.name);
 
         return div;
     },
     //builds the html for this panels menu item
     createMenuElement: function() {
         var div = this._menuItem = document.createElement('div');
-        gf.debug.ui.addClass(div, 'gf_debug_menu_item ' + this.name);
-        gf.debug.ui.setText(div, this.title);
+        debug.ui.addClass(div, 'gf_debug_menu_item ' + this.name);
+        debug.ui.setText(div, this.title);
 
         return div;
     },
     toggle: function() {
-        if(this._panel.style.display === 'block')
+        if(this._panel.style.display === 'block') {
             this.hide();
-        else
+            this.active = false;
+        } else {
             this.show();
+            this.active = true;
+        }
     },
     show: function() {
-        gf.debug.ui.setStyle(this._panel, 'display', 'block');
+        debug.ui.setStyle(this._panel, 'display', 'block');
     },
     hide: function() {
-        gf.debug.ui.setStyle(this._panel, 'display', 'none');
+        debug.ui.setStyle(this._panel, 'display', 'none');
     }
 });

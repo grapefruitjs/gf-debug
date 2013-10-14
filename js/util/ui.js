@@ -1,5 +1,5 @@
 //Some general dom helpers
-gf.debug.ui = {
+debug.ui = {
     delegate: function(dom, evt, selector, fn) {
         dom.addEventListener(evt, function(e) {
             if(e.target && e.target.matches(selector)) {

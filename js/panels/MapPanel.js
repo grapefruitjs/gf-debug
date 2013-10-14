@@ -1,5 +1,5 @@
-gf.debug.MapPanel = function (game) {
-    gf.debug.Panel.call(this, game);
+debug.MapPanel = function (game) {
+    debug.Panel.call(this, game);
 
     this.name = 'map';
     this.title = 'Mini-Map';
@@ -10,20 +10,22 @@ gf.debug.MapPanel = function (game) {
         numStates: 0,
         state: null
     };
+
+    this.fullRender = true;
 };
 
-gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
+gf.inherit(debug.MapPanel, debug.Panel, {
     createPanelElement: function() {
-        var div = gf.debug.Panel.prototype.createPanelElement.call(this);
+        var div = debug.Panel.prototype.createPanelElement.call(this);
 
         this.states = document.createElement('ul');
-        gf.debug.ui.addClass(this.states, 'states');
-        gf.debug.ui.delegate(this.states, 'click', 'li', this.onClickState.bind(this));
+        debug.ui.addClass(this.states, 'states');
+        debug.ui.delegate(this.states, 'click', 'li', this.onClickState.bind(this));
         div.appendChild(this.states);
 
         this.mapsui = document.createElement('ul');
-        gf.debug.ui.addClass(this.mapsui, 'maps');
-        gf.debug.ui.delegate(this.mapsui, 'click', 'li', this.onClickMap.bind(this));
+        debug.ui.addClass(this.mapsui, 'maps');
+        debug.ui.delegate(this.mapsui, 'click', 'li', this.onClickMap.bind(this));
         div.appendChild(this.mapsui);
 
         return div;
@@ -33,7 +35,7 @@ gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
         this.buildStateList();
 
         //clear maps/layers
-        gf.debug.ui.empty(this.mapsui);
+        debug.ui.empty(this.mapsui);
 
         //hide current map
         if(this.map)
@@ -42,7 +44,7 @@ gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
         this.map = null;
     },
     buildStateList: function() {
-        gf.debug.ui.empty(this.states);
+        debug.ui.empty(this.states);
 
         var states = this.game.state.states,
             name, state;
@@ -55,16 +57,16 @@ gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
             this.states.appendChild(li);
 
             if(!this.maps[name])
-                this.maps[name] = new gf.debug.Minimap(this._panel, state);
+                this.maps[name] = new debug.Minimap(this._panel, state);
             else
                 this.maps[name].render(true);
         }
     },
     buildMapList: function(state) {
-        gf.debug.ui.empty(this.mapsui);
+        debug.ui.empty(this.mapsui);
 
         //loop through each child of the selected state
-        for(var i = 0; i < state.world.children; ++i) {
+        for(var i = 0; i < state.world.children.length; ++i) {
             var child = state.world.children[i];
 
             //if this is a tilemap show it and all layers
@@ -77,7 +79,7 @@ gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
                     var ul = document.createElement('ul'),
                         add = false;
 
-                    for(var l = 0; l < child.children; ++l) {
+                    for(var l = 0; l < child.children.length; ++l) {
                         var layer = child.children[l];
 
                         //only add tilelayers
@@ -106,11 +108,11 @@ gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
     createLi: function(cls, text, active) {
         var li = document.createElement('li');
 
-        gf.debug.ui.addClass(li, cls);
-        gf.debug.ui.setText(li, text);
+        debug.ui.addClass(li, cls);
+        debug.ui.setText(li, text);
 
         if(active)
-            gf.debug.ui.addClass('active');
+            debug.ui.addClass(li, 'active');
 
         return li;
     },
@@ -136,11 +138,12 @@ gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
 
         //toggle visibility
         obj.visible = !obj.visible;
+        this.fullRender = true;
 
         if(obj.visible)
-            e.target.addClass('active');
+            debug.ui.addClass(e.target, 'active');
         else
-            e.target.removeClass('active');
+            debug.ui.removeClass(e.target, 'active');
     },
     tick: function() {
         if(!this.active)
@@ -153,7 +156,9 @@ gf.inherit(gf.debug.MapPanel, gf.debug.Panel, {
             this.map = this.maps[this.game.state.active.name];
         }
 
-        if(this.map)
-            this.map.render();
+        if(this.map) {
+            this.map.render(this.fullRender);
+            this.fullRender = false;
+        }
     }
 });

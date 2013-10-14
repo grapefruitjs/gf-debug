@@ -1,4 +1,4 @@
-gf.debug.Minimap = function(container, state) {
+debug.Minimap = function(container, state) {
     this.canvas = document.createElement('canvas');
     this.prerenderCanvas = document.createElement('canvas');
 
@@ -10,33 +10,48 @@ gf.debug.Minimap = function(container, state) {
     this.world = state.world;
     this.camera = state.camera;
 
-    this.scale = 0.25;
+    this.scale = 1;
 
     this._hasRendered = false;
 
     this.viewportRectColor = 'rgba(255, 0, 255, 1)';
 
     this.active = true;
+    this.maxSize = new gf.Vector();
 };
 
-gf.inherit(gf.debug.Minimap, Object, {
+gf.inherit(debug.Minimap, Object, {
     show: function() {
-        gf.debug.show(this.canvas);
+        debug.ui.show(this.canvas);
         this.active = true;
     },
     hide: function() {
-        gf.debug.hide(this.canvas);
+        debug.ui.hide(this.canvas);
         this.active = false;
     },
     render: function(full) {
-        if(!this.map || !this.active)
+        if(!this.active)
             return;
 
         if(full || !this._hasRendered) {
+            //find the largest tilemap
+            for(var w = 0, wl = this.world.children.length; w < wl; ++w) {
+                var map = this.world.children[w];
+
+                if(map instanceof gf.Tilemap) {
+                    this.maxSize.x = gf.math.max(this.maxSize.x, map.size.x * map.tileSize.x);
+                    this.maxSize.y = gf.math.max(this.maxSize.y, map.size.y * map.tileSize.y);
+                }
+            }
+
+            if(this.maxSize.x === 0 || this.maxSize.y === 0) {
+                return;
+            }
+
             this._hasRendered = true;
 
-            this.canvas.width = this.prerenderCanvas.width = (this.map.size.x * this.map.tileSize.x * this.scale);
-            this.canvas.height = this.prerenderCanvas.height = (this.map.size.y * this.map.tileSize.y * this.scale);
+            this.canvas.width = this.prerenderCanvas.width = this.maxSize.x;
+            this.canvas.height = this.prerenderCanvas.height = this.maxSize.y;
 
             //pre renders the tilemaps to the prerenderCanvas
             this.prerender();
@@ -57,21 +72,24 @@ gf.inherit(gf.debug.Minimap, Object, {
     },
     drawViewport: function() {
         //draw the viewport
-        var w = this.world,
-            p = w.position,
-            c = this.camera,
-            s = this.scale;
+        var world = this.world,
+            pos = world.position,
+            cam = this.camera,
+            scaleX = this.scale * world.scale.x,
+            scaleY = this.scale * world.scale.y,
+            sizeX = Math.min(cam.size.x, this.maxSize.x),
+            sizeY = Math.min(cam.size.y, this.maxSize.y);
 
         this.ctx.strokeStyle = this.viewportRectColor;
         this.ctx.strokeRect(
-            (-p.x * s) / w.scale.x,
-            (-p.y * s) / w.scale.x,
-            (c.size.x * s) / w.scale.x,
-            (c.size.y * s) / w.scale.y
+            -pos.x * scaleX,
+            -pos.y * scaleY,
+            sizeX * scaleX,
+            sizeY * scaleY
         );
     },
     prerender: function() {
-        var world = this.game.world;
+        var world = this.world;
 
         //for each child of world, if it is visible and a tilemap, prerender it
         for(var w = 0, wl = world.children.length; w < wl; ++w) {
@@ -105,10 +123,13 @@ gf.inherit(gf.debug.Minimap, Object, {
     },
     prerenderTile: function(tid, map, x, y) {
         var set = map.getTileset(tid),
-            tx = set.getTileTexture(tid);
+            tx;
 
-        if(!set || !tx)
-            return;
+        if(!set) return;
+
+        tx = set.getTileTexture(tid);
+
+        if(!tx) return;
 
         //from pixi canvas renderer
         this.pctx.drawImage(
@@ -117,8 +138,8 @@ gf.inherit(gf.debug.Minimap, Object, {
             tx.frame.y,
             tx.frame.width,
             tx.frame.height,
-            x,
-            y,
+            x * tx.frame.width,
+            y * tx.frame.height,
             tx.frame.width * this.scale,
             tx.frame.height * this.scale
         );

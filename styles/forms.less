@@ -2,10 +2,14 @@
 Based on: http://cssdeck.com/labs/css-checkbox-styles
 */
 
+input[type=checkbox] {
+    visibility: hidden;
+}
+
 .boxit(@color1, @color2) {
-  -webkit-box-shadow: inset 0px 1px 1px @color1, 0px 1px 3px @color2;
-  -moz-box-shadow: inset 0px 1px 1px @color1, 0px 1px 3px @color2;
-  box-shadow: inset 0px 1px 1px @color1, 0px 1px 3px @color2;
+  -webkit-box-shadow: inset 0px 1px 1px @color1, 0px 1px 0px @color2;
+  -moz-box-shadow: inset 0px 1px 1px @color1, 0px 1px 0px @color2;
+  box-shadow: inset 0px 1px 1px @color1, 0px 1px 0px @color2;
 }
 
 .gradit(@one, @two, @three) {
@@ -16,89 +20,80 @@ Based on: http://cssdeck.com/labs/css-checkbox-styles
     background: linear-gradient(top, @one 0%, @two 40%, @three 100%);
 }
 
-/* Status Orb (checkbox replacement) */
-@cb_ring: #fcfef4;
-@cb_ring_start: #dfe5d7;
-@cb_ring_stop: #b3bead;
-
-@cb_active: #00bf00;
-@cb_active_start: #00bf00;
-@cb_active_stop: #009400;
-
-@cb_inner: #222;
-@cb_inner_start: #222;
-@cb_inner_stop: #45484d;
-
-@cb_ring_size: 4px;
-@cb_inner_space: 2px;
-@cb_active_size: 16px;
-
-@cb_label_size: @cb_active_size + (@cb_inner_space * 2);
-@cb_box_size: @cb_label_size + (@cb_ring_size * 2);
-@cb_radius: @cb_box_size * 2;
-
-@cb_accent_start: white;
-@cb_accent_stop: rgba(0,0,0,0.5);
-
-@cb_label_width: 250px;
-@cb_label_font_size: 1.1em;
-
-input[type=checkbox] {
-    visibility: hidden;
-}
-
 .checkbox {
+    width: 75px;
+    height: 26px;
+    background: #333;
     position: relative;
-    width: @cb_box_size;
-    height: @cb_box_size;
-    background: @cb_ring;
+    line-height: normal;
+    //margin: 20px auto;
 
-    .gradit(@cb_ring, @cb_ring_start, @cb_ring_stop);
-    .rounded(@cb_radius);
-    .boxit(@cb_accent_start, @cb_accent_stop);
+    .rounded(50px);
+    .boxit(rgba(0,0,0,0.5), rgba(255,255,255,0.2));
 
-    label {
-        cursor: pointer;
+    &:after {
+        content: 'OFF';
+        font: 12px/26px Arial, sans-serif;
+        color: #000;
         position: absolute;
-        width: @cb_label_size;
-        height: @cb_label_size;
-        left: @cb_ring_size;
-        top: @cb_ring_size;
-
-        .gradient(@cb_inner, @cb_inner_start, @cb_inner_stop);
-        .rounded(@cb_radius);
-        .boxit(@cb_accent_stop, @cb_accent_start);
-
-        &:after {
-            opacity: 0;
-            content: '';
-            position: absolute;
-            width: @cb_active_size;
-            height: @cb_active_size;
-            top: @cb_inner_space;
-            left: @cb_inner_space;
-
-            .gradient(@cb_active, @cb_active_start, @cb_active_start);
-            .rounded(@cb_radius);
-            .boxit(@cb_accent_start, @cb_accent_stop);
-        }
-
-        &:hover::after {
-            opacity: 0.3;
-        }
+        right: 10px;
+        z-index: 0;
+        font-weight: bold;
+        text-shadow: 1px 1px 0px rgba(255,255,255,.15);
     }
 
-    span {
+    &:before {
+        content: 'ON';
+        font: 12px/26px Arial, sans-serif;
+        color: #00bf00;
+        position: absolute;
+        left: 10px;
+        z-index: 0;
+        font-weight: bold;
+    }
+
+    & + span {
         position: relative;
         display: block;
-        top: -@cb_active_size;
-        left: @cb_box_size + @cb_ring_size;
-        width: @cb_label_width;
-        color: @cb_ring;
-        font-size: @cb_label_font_size;
+        top: -25px;
+        left: 90px;
+        width: 200px;
+        color: #fcfff4;
+        font-size: 1.1em;
     }
 
-    input[type=checkbox]:checked + label:after {
-        opacity: 1;
+    input[type=checkbox]:checked + label {
+        left: 38px;
+    }
+
+
+    label {
+        display: block;
+        width: 34px;
+        height: 20px;
+
+        -webkit-border-radius: 50px;
+        -moz-border-radius: 50px;
+        border-radius: 50px;
+
+        -webkit-transition: all .4s ease;
+        -moz-transition: all .4s ease;
+        -o-transition: all .4s ease;
+        -ms-transition: all .4s ease;
+        transition: all .4s ease;
+        cursor: pointer;
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        z-index: 1;
+
+        background: #fcfff4;
+        .gradient(#fcfff4, #dfe5d7, #b3bead);
+        //.rounded(@cb_radius);
+        //.boxit(@cb_accent_start, @cb_accent_stop);
+
+        -webkit-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3);
+        -moz-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3);
+        box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3);
     }
 }

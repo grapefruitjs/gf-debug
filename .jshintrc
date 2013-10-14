@@ -51,7 +51,8 @@
     "maxcomplexity" : false,    // Restrict the cyclomatic complexity of the code.
     "maxlen"        : 200,      // Require that all lines are 100 characters or less.
     "globals"       : {         // Register globals that are used in the code.
-        "gf": false
+        "gf": false,
+        "debug": false
     },
 
     // == Relaxing Options ================================================
