@@ -87,15 +87,7 @@ debug.logEvent = function(name) {
 debug.drawBodyShape = function(body, style, gfx) {
     var shape = body.shape,
         p = body.position,
-        sx = trans[0],
-        sy = trans[4],
-        sa = ((sx + sy) / 2),
-        sw = body.sprite.width * sx,
-        sh = body.sprite.height * sy,
         game = this.game;
-
-    px -= ax * sw;
-    py -= ay * sh;
 
     //setup gfx
     gfx = gfx || (function() {
@@ -118,7 +110,7 @@ debug.drawBodyShape = function(body, style, gfx) {
         //var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
         //    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
 
-        gfx.drawCircle(p.x, p.y, shape.radius * sa);
+        gfx.drawCircle(p.x, p.y, shape.radius);
     }
     //draw polygon
     else {
@@ -131,8 +123,8 @@ debug.drawBodyShape = function(body, style, gfx) {
 
         for(var x = 1; x < shape.points.length; x++) {
             gfx.lineTo(
-                p.x + shape.points[x].x * sx,
-                p.y + shape.points[x].y * sy
+                p.x + shape.points[x].x,
+                p.y + shape.points[x].y
             );
         }
 
