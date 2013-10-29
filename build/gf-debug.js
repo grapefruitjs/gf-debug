@@ -4,7 +4,7 @@
  * Copyright (c) 2013, Chad Engler
  * https://github.com/grapefruitjs/gf-debug
  *
- * Compiled: 2013-10-28
+ * Compiled: 2013-10-29
  *
  * GrapeFruit Debug Module is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license.php
@@ -89,7 +89,7 @@ debug.logEvent = function(name) {
 /**
  * Draws the body of a sprite
  *
- * @method drawBodyShape
+ * @method drawPhysicsShape
  * @param body {Body} The body to draw a visual representation of
  * @param [style] {Object} The style of the line draws
  * @param [style.size=1] {Number} The thickness of the line stroke
@@ -99,9 +99,8 @@ debug.logEvent = function(name) {
  *      none is passed a new one is created and added ot the world.
  * @return {Graphics} The graphics object used to draw the shape
  */
-/*debug.drawBodyShape = function(body, style, gfx) {
-    var shape = body.shape,
-        p = body.position,
+debug.drawPhysicsShape = function(shape, style, gfx) {
+    var p = shape.body.p,
         game = this.game;
 
     //setup gfx
@@ -121,36 +120,39 @@ debug.logEvent = function(name) {
     );
 
     //draw circle
-    if(shape._shapetype === gf.SHAPE.CIRCLE) {
-        //var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
-        //    cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
+    if(shape.type === 'circle') {
+        /* jshint -W106 */
+        var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
+            cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
+        /* jshint +W106 */
 
-        gfx.drawCircle(p.x, p.y, shape.radius);
+        gfx.drawCircle(cx, cy, shape.r);
     }
     //draw polygon
     else {
-        var pt = shape.points[0];
+        var vx = shape.verts[0],
+            vy = shape.verts[1];
 
         gfx.moveTo(
-            p.x + pt.x,
-            p.y + pt.y
+            p.x + vx,
+            p.y + vy
         );
 
-        for(var x = 1; x < shape.points.length; x++) {
+        for(var i = 2; i < shape.verts.length; i += 2) {
             gfx.lineTo(
-                p.x + shape.points[x].x,
-                p.y + shape.points[x].y
+                p.x + shape.verts[i],
+                p.y + shape.verts[i + 1]
             );
         }
 
         gfx.lineTo(
-            p.x + pt.x,
-            p.y + pt.y
+            p.x + vx,
+            p.y + vy
         );
     }
 
     return gfx;
-};*/
+};
 
 /**
  * Draws the quadtree used by physics onto the screen
@@ -538,50 +540,16 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
 
         //draw all the bodies
         if(this.showing.shapes) {
-            var g = this.gfx, self = this;
+            var self = this;
             this.game.physics.space.eachShape(function(shape) {
                 if(!shape.body) return;
 
-                var body = shape.body,
-                    p = body.p,
-                    style = shape.sensor ? self.style.sensorShape : self.style._defaultShape;
-
-                g.lineStyle(style.size, style.color, style.alpha);
-
-                //circle
-                if(shape.type === 'circle') {
-                    /* jshint -W106 */
-                    var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
-                        cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
-                    /* jshint +W106 */
-
-                    g.drawCircle(cx, cy, shape.r);
-                }
-                //polygon
-                else {
-                    var sx = shape.verts[0],
-                        sy = shape.verts[1];
-
-                    g.moveTo(p.x + sx, p.y + sy);
-
-                    for(var i = 2; i < shape.verts.length; i+=2) {
-                        g.lineTo(
-                            p.x + shape.verts[i],
-                            p.y + shape.verts[i + 1]
-                        );
-                    }
-
-                    g.lineTo(p.x + sx, p.y + sy);
-                }
-            });
-            /*var bods = this.game.physics.bodies;
-            for(var i = 0; i < bods.length; ++i) {
-                debug.drawBodyShape(
-                    bods[i],
-                    bods[i].sensor ? this.style.sensorShape : this.style._defaultShape,
-                    this.gfx
+                debug.drawPhysicsShape(
+                    shape,
+                    shape.sensor ? self.style.sensorShape : self.style._defaultShape,
+                    self.gfx
                 );
-            }*/
+            });
         }
 
         //draw the quadtree
