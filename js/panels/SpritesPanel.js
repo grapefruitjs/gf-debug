@@ -76,50 +76,16 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
 
         //draw all the bodies
         if(this.showing.shapes) {
-            var g = this.gfx, self = this;
+            var self = this;
             this.game.physics.space.eachShape(function(shape) {
                 if(!shape.body) return;
 
-                var body = shape.body,
-                    p = body.p,
-                    style = shape.sensor ? self.style.sensorShape : self.style._defaultShape;
-
-                g.lineStyle(style.size, style.color, style.alpha);
-
-                //circle
-                if(shape.type === 'circle') {
-                    /* jshint -W106 */
-                    var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
-                        cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
-                    /* jshint +W106 */
-
-                    g.drawCircle(cx, cy, shape.r);
-                }
-                //polygon
-                else {
-                    var sx = shape.verts[0],
-                        sy = shape.verts[1];
-
-                    g.moveTo(p.x + sx, p.y + sy);
-
-                    for(var i = 2; i < shape.verts.length; i+=2) {
-                        g.lineTo(
-                            p.x + shape.verts[i],
-                            p.y + shape.verts[i + 1]
-                        );
-                    }
-
-                    g.lineTo(p.x + sx, p.y + sy);
-                }
-            });
-            /*var bods = this.game.physics.bodies;
-            for(var i = 0; i < bods.length; ++i) {
-                debug.drawBodyShape(
-                    bods[i],
-                    bods[i].sensor ? this.style.sensorShape : this.style._defaultShape,
-                    this.gfx
+                debug.drawPhysicsShape(
+                    shape,
+                    shape.sensor ? self.style.sensorShape : self.style._defaultShape,
+                    self.gfx
                 );
-            }*/
+            });
         }
 
         //draw the quadtree
