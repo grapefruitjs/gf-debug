@@ -84,7 +84,7 @@ debug.logEvent = function(name) {
  *      none is passed a new one is created and added ot the world.
  * @return {Graphics} The graphics object used to draw the shape
  */
-debug.drawBodyShape = function(body, style, gfx) {
+/*debug.drawBodyShape = function(body, style, gfx) {
     var shape = body.shape,
         p = body.position,
         game = this.game;
@@ -135,7 +135,7 @@ debug.drawBodyShape = function(body, style, gfx) {
     }
 
     return gfx;
-};
+};*/
 
 /**
  * Draws the quadtree used by physics onto the screen
@@ -150,7 +150,7 @@ debug.drawBodyShape = function(body, style, gfx) {
  *      none is passed a new one is created and added ot the world.
  * @return {Graphics} The graphics object used to draw the tree
  */
-debug.drawQuadTree = function(tree, style, gfx) {
+/*debug.drawQuadTree = function(tree, style, gfx) {
     var self = this;
 
     //setup gfx
@@ -188,7 +188,7 @@ debug.drawQuadTree = function(tree, style, gfx) {
     }
 
     return gfx;
-};
+};*/
 
 debug._bindEvents = function() {
     var activePanel,
