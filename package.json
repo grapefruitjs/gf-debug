@@ -2,7 +2,7 @@
     "name": "gf-debug",
     "longName": "GrapeFruit Debug Module",
 
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Provides useful debugging information",
 
     "author": "Chad Engler <chad@pantherdev.com>",
