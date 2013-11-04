@@ -4,26 +4,6 @@ debug.SpritesPanel = function(game) {
     this.name = 'sprites';
     this.title = 'Sprites';
 
-    this.gfx = new gf.Graphics();
-
-    this.style = {
-        _defaultShape: {
-            size: 1,
-            color: 0xff2222,
-            alpha: 1
-        },
-        sensorShape: {
-            size: 1,
-            color: 0x22ff22,
-            alpha: 1
-        },
-        tree: {
-            size: 1,
-            color: 0x2222ff,
-            alpha: 1
-        }
-    };
-
     this.showing = {
         shapes: false,
         tree: false
@@ -53,12 +33,19 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
 
         div.appendChild(pad);
 
+        this.physics = new debug.Physics(div, this.game);
+
         return div;
     },
     toggleType: function(type) {
         this.showing[type] = !this.showing[type];
     },
     tick: function() {
+        if(!this.active)
+            return;
+
+        this.physics.render();
+        /*
         if(this.game.world !== this.gfx.parent) {
             if(this.gfx.parent)
                 this.gfx.parent.removeChild(this.gfx);
@@ -69,7 +56,7 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
         this.gfx.clear();
 
         //ensure always on top
-        if(!this.showing.shapes/* && !this.showing.tree*/)
+        if(!this.showing.shapes && !this.showing.tree)
             return this._updateGfx(true);
         else
             this._updateGfx();
@@ -89,13 +76,14 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
         }
 
         //draw the quadtree
-        /*if(this.showing.tree) {
+        if(this.showing.tree) {
             debug.drawQuadTree(
                 this.game.physics.tree,
                 this.style.tree,
                 this.gfx
             );
-        }*/
+        }
+        */
     },
     _updateGfx: function(rm) {
         if(rm) {

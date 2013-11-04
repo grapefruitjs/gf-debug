@@ -10,6 +10,7 @@ module.exports = function(grunt) {
             '<%= dirs.src %>/util/Graph.js',
             '<%= dirs.src %>/util/Minimap.js',
             '<%= dirs.src %>/util/Gamepad.js',
+            '<%= dirs.src %>/util/Physics.js',
             '<%= dirs.src %>/util/ui.js'
         ],
         banner = [
