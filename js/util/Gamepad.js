@@ -93,7 +93,7 @@ gf.inherit(debug.Gamepad, Object, {
             labelEl = this.element.querySelector('label[for="' + axisIds[status.code][0] + '"]'),
             offsetVal = status.value * STICK_OFFSET;
 
-        if(status.code === gf.input.GP_AXIS.LEFT_ANALOGUE_HOR || status.code === gf.input.GP_AXIS.RIGHT_ANALOGUE_HOR) {
+        if(status.code === gf.GamepadSticks.AXIS.LEFT_ANALOGUE_HOR || status.code === gf.GamepadSticks.AXIS.RIGHT_ANALOGUE_HOR) {
             stickEl.style.marginLeft = offsetVal + 'px';
         } else {
             stickEl.style.marginTop = offsetVal + 'px';
