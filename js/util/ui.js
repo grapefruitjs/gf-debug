@@ -55,6 +55,13 @@ debug.ui = {
 
     hide: function(dom) {
         this.setStyle(dom, 'display', 'none');
+    },
+
+    clear: function() {
+        var br = document.createElement('br');
+        debug.ui.addClass(br, 'clear');
+
+        return br;
     }
 };
 
