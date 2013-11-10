@@ -4,7 +4,7 @@
  * Copyright (c) 2013, Chad Engler
  * https://github.com/grapefruitjs/gf-debug
  *
- * Compiled: 2013-11-05
+ * Compiled: 2013-11-10
  *
  * GrapeFruit Debug Module is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license.php
@@ -578,17 +578,31 @@ debug.MapPanel = function (game) {
 
 gf.inherit(debug.MapPanel, debug.Panel, {
     createPanelElement: function() {
-        var div = debug.Panel.prototype.createPanelElement.call(this);
+        var div = debug.Panel.prototype.createPanelElement.call(this),
+            left = document.createElement('div'),
+            right = document.createElement('div');
+
+        //states (left)
+        debug.ui.addClass(left, 'left');
+        debug.ui.setHtml(left, '<h2>Game States</h2>');
 
         this.states = document.createElement('ul');
         debug.ui.addClass(this.states, 'states');
         debug.ui.delegate(this.states, 'click', 'li', this.onClickState.bind(this));
-        div.appendChild(this.states);
+        left.appendChild(this.states);
+
+        //maps (right)
+        debug.ui.addClass(right, 'right');
+        debug.ui.setHtml(right, '<h2>Tilemaps</h2>');
 
         this.mapsui = document.createElement('ul');
         debug.ui.addClass(this.mapsui, 'maps');
         debug.ui.delegate(this.mapsui, 'click', 'li', this.onClickMap.bind(this));
-        div.appendChild(this.mapsui);
+        right.appendChild(this.mapsui);
+
+        div.appendChild(left);
+        div.appendChild(right);
+        div.appendChild(debug.ui.clear());
 
         return div;
     },
@@ -622,6 +636,8 @@ gf.inherit(debug.MapPanel, debug.Panel, {
                 this.maps[name] = new debug.Minimap(this._panel, state);
             else
                 this.maps[name].render(true);
+
+            this.maps[name].hide();
         }
     },
     buildMapList: function(state) {
@@ -1365,6 +1381,13 @@ debug.ui = {
 
     hide: function(dom) {
         this.setStyle(dom, 'display', 'none');
+    },
+
+    clear: function() {
+        var br = document.createElement('br');
+        debug.ui.addClass(br, 'clear');
+
+        return br;
     }
 };
 
