@@ -270,10 +270,13 @@ debug._createMenuStats = function() {
     var div = document.createElement('div'),
         fps = this._stats.fps = document.createElement('div'),
         ms = this._stats.ms = document.createElement('div'),
-        wld = this._stats.wld = document.createElement('div'),
-        cam = this._stats.cam = document.createElement('div');
+        obj = this._stats.obj = document.createElement('div');
 
     this.ui.addClass(div, 'gf_debug_stats');
+
+    this.ui.addClass(obj, 'gf_debug_stats_item world');
+    this.ui.setHtml(obj, '<span>0</span>/<span>0</span> Scene Objects Renderable');
+    div.appendChild(obj);
 
     this.ui.addClass(ms, 'gf_debug_stats_item ms');
     this.ui.setHtml(ms, '<span>0</span> ms');
@@ -283,15 +286,15 @@ debug._createMenuStats = function() {
     this.ui.setHtml(fps, '<span>0</span> fps');
     div.appendChild(fps);
 
-    this.ui.addClass(wld, 'gf_debug_stats_item world');
-    this.ui.setHtml(wld, '<span>0</span> world objs');
-    div.appendChild(wld);
-
-    this.ui.addClass(cam, 'gf_debug_stats_item camera');
-    this.ui.setHtml(cam, '<span>0</span> camera objs');
-    div.appendChild(cam);
-
     return div;
+};
+
+debug.padString = function(str, to, pad) {
+    while(str.length < to) {
+        str = pad + str;
+    }
+
+    return str;
 };
 
 debug._statsTick = function() {
@@ -301,32 +304,35 @@ debug._statsTick = function() {
     fps = fps > 60 ? 60 : fps;
 
     //update stats
-    this.ui.setText(this._stats.ms.firstElementChild, ms.toFixed(2));
-    this.ui.setText(this._stats.fps.firstElementChild, fps.toFixed(2));
+    this.ui.setText(this._stats.ms.firstElementChild, debug.padString(ms.toFixed(2), 7, 0));
+    this.ui.setText(this._stats.fps.firstElementChild, debug.padString(fps.toFixed(2), 5, 0));
 
     //count objects in the world
-    var wld = this.game.state.active.world,
-        cam = this.game.state.active.camera,
-        wlast = wld.last._iNext,
-        clast = cam.last._iNext,
-        wcnt = 0,
-        ccnt = 0;
+    var objs = 0,
+        rnds = 0,
+        object = this.game.stage.first,
+        lastObj = this.game.stage.last._iNext;
 
-    //count world objects
     do {
-        wcnt++;
-        wld = wld._iNext;
-    } while(wld !== wlast);
+        objs++;
 
-    //count camera objects
-    do {
-        ccnt++;
-        cam = cam._iNext;
-    } while(cam !== clast);
+        if(!object.visible) {
+            object = object.last._iNext;
+            continue;
+        }
+        
+        if(!object.renderable) {
+            object = object._iNext;
+            continue;
+        }
+
+        rnds++;
+        object = object._iNext;
+    } while(object !== lastObj);
 
     //set the element values
-    debug.ui.setText(debug._stats.wld.firstElementChild, wcnt);
-    debug.ui.setText(debug._stats.cam.firstElementChild, ccnt);
+    debug.ui.setText(debug._stats.obj.children[0], rnds);
+    debug.ui.setText(debug._stats.obj.children[1], objs);
 };
 
 debug.Panel = function(game) {
