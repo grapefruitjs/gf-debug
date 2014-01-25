@@ -8,6 +8,27 @@ debug.SpritesPanel = function(game) {
         shapes: false,
         tree: false
     };
+
+    //style of things to draw
+    this.style = {
+        _defaultShape: {
+            size: 1,
+            color: 0xff2222,
+            alpha: 1
+        },
+        sensorShape: {
+            size: 1,
+            color: 0x22ff22,
+            alpha: 1
+        },
+        tree: {
+            size: 1,
+            color: 0x2222ff,
+            alpha: 1
+        }
+    };
+
+    this.gfx = new gf.Graphics();
 };
 
 gf.inherit(debug.SpritesPanel, debug.Panel, {
@@ -21,19 +42,11 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
                 '<input type="checkbox" value="" id="gf_debug_toggleShapes" class="gf_debug_toggleShapes" name="check" />' +
                 '<label for="gf_debug_toggleShapes"></label>' +
             '</div>' +
-            '<span>Draw Collider Shapes</span>'/* +
-            '<div class="checkbox">' +
-                '<input type="checkbox" value="" id="gf_debug_toggleQuadTree" class="gf_debug_toggleQuadTree" name="check" />' +
-                '<label for="gf_debug_toggleQuadTree"></label>' +
-            '</div>' +
-            '<span>Draw QuadTree</span>'*/
+            '<span>Draw Collider Shapes (WARNING: Very Expensive!)</span>'
         );
         debug.ui.delegate(pad, 'change', '.gf_debug_toggleShapes', this.toggleType.bind(this, 'shapes'));
-        //debug.ui.delegate(pad, 'change', '.gf_debug_toggleQuadTree', this.toggleType.bind(this, 'tree'));
 
         div.appendChild(pad);
-
-        this.physics = new debug.Physics(div, this.game);
 
         return div;
     },
@@ -41,25 +54,17 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
         this.showing[type] = !this.showing[type];
     },
     tick: function() {
-        if(!this.active)
-            return;
+        var idx = this.game.stage.children.indexOf(this.gfx);
 
-        this.physics.render();
-        /*
-        if(this.game.world !== this.gfx.parent) {
+        //ensure always on top
+        if(idx !== this.game.stage.children.length - 1) {
             if(this.gfx.parent)
                 this.gfx.parent.removeChild(this.gfx);
 
-            this.game.world.add.obj(this.gfx);
+            this.game.stage.addChild(this.gfx);
         }
 
         this.gfx.clear();
-
-        //ensure always on top
-        if(!this.showing.shapes && !this.showing.tree)
-            return this._updateGfx(true);
-        else
-            this._updateGfx();
 
         //draw all the bodies
         if(this.showing.shapes) {
@@ -67,31 +72,12 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
             this.game.physics.space.eachShape(function(shape) {
                 if(!shape.body) return;
 
-                debug.drawPhysicsShape(
+                shape.sprite._drawShape(
                     shape,
-                    shape.sensor ? self.style.sensorShape : self.style._defaultShape,
-                    self.gfx
+                    self.gfx,
+                    shape.sensor ? self.style.sensorShape : self.style._defaultShape
                 );
             });
-        }
-
-        //draw the quadtree
-        if(this.showing.tree) {
-            debug.drawQuadTree(
-                this.game.physics.tree,
-                this.style.tree,
-                this.gfx
-            );
-        }
-        */
-    },
-    _updateGfx: function(rm) {
-        if(rm) {
-            if(this.gfx.parent)
-                this.gfx.parent.removeChild(this.gfx);
-        } else {
-            if(!this.gfx.parent)
-                this.game.world.add.obj(this.gfx);
         }
     }
 });

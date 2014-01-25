@@ -4,7 +4,7 @@
  * Copyright (c) 2013, Chad Engler
  * https://github.com/grapefruitjs/gf-debug
  *
- * Compiled: 2013-11-10
+ * Compiled: 2014-01-25
  *
  * GrapeFruit Debug Module is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license.php
@@ -90,25 +90,20 @@ debug.logEvent = function(name) {
  * Draws the body of a sprite
  *
  * @method drawPhysicsShape
- * @param body {Body} The body to draw a visual representation of
+ * @param shape {Shape} The cp.Shape to draw a visual representation of
+ * @param gfx {Graphics} The graphics object to use to draw with
  * @param [style] {Object} The style of the line draws
  * @param [style.size=1] {Number} The thickness of the line stroke
  * @param [style.color=0xff2222] {Number} The color of the line stroke
  * @param [style.alpha=1] {Number} The opacity of the line stroke [0 - 1]
- * @param [gfx] {Graphics} The graphics object to use to draw with, if
- *      none is passed a new one is created and added ot the world.
  * @return {Graphics} The graphics object used to draw the shape
  */
-debug.drawPhysicsShape = function(shape, style, gfx) {
-    var p = shape.body.p,
-        game = this.game;
-
-    //setup gfx
-    gfx = gfx || (function() {
-                    var g = new gf.PIXI.Graphics();
-                    game.world.add.obj(g);
-                    return g;
-                })();
+gf.Sprite.prototype._drawShape = function(shape, gfx, style) {
+    var wt = this.worldTransform,
+        x = wt[2],
+        y = wt[5],
+        sx = wt[0],
+        sy = wt[4];
 
     //setup style
     style = style || {};
@@ -120,6 +115,7 @@ debug.drawPhysicsShape = function(shape, style, gfx) {
     );
 
     //draw circle
+    //TODO: THIS SHOULD BE BASED ON WORLD TRANSFORM
     if(shape.type === 'circle') {
         /* jshint -W106 */
         var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
@@ -134,78 +130,25 @@ debug.drawPhysicsShape = function(shape, style, gfx) {
             vy = shape.verts[1];
 
         gfx.moveTo(
-            p.x + vx,
-            p.y + vy
+            x + (sx * vx),
+            y + (sy * vy)
         );
 
         for(var i = 2; i < shape.verts.length; i += 2) {
             gfx.lineTo(
-                p.x + shape.verts[i],
-                p.y + shape.verts[i + 1]
+                x + (sx * shape.verts[i]),
+                y + (sy * shape.verts[i + 1])
             );
         }
 
         gfx.lineTo(
-            p.x + vx,
-            p.y + vy
+            x + (sx * vx),
+            y + (sy * vy)
         );
     }
 
     return gfx;
 };
-
-/**
- * Draws the quadtree used by physics onto the screen
- *
- * @method drawQuadTree
- * @param [tree=game.physics.tree] {QuadTree} The quadtree to draw, generally this is for recursing
- * @param [style] {Object} The style of the line draws
- * @param [style.size=1] {Number} The thickness of the line stroke
- * @param [style.color=0x2222ff] {Number} The color of the line stroke
- * @param [style.alpha=1] {Number} The opacity of the line stroke [0 - 1]
- * @param [gfx] {Graphics} The graphics object to use to draw with, if
- *      none is passed a new one is created and added ot the world.
- * @return {Graphics} The graphics object used to draw the tree
- */
-/*debug.drawQuadTree = function(tree, style, gfx) {
-    var self = this;
-
-    //setup gfx
-    gfx = gfx || (function() {
-                    var g = new gf.PIXI.Graphics();
-                    self.game.world.add.obj(g);
-                    return g;
-                })();
-
-    tree = tree || this.game.physics.tree;
-
-    //setup style
-    style = style || {};
-
-    gfx.lineStyle(
-        style.size !== undefined ? style.size : 1,
-        style.color !== undefined ? style.color : 0x2222ff,
-        style.alpha !== undefined ? style.alpha : 1
-    );
-
-    //draw our bounds
-    gfx.drawRect(
-        tree.bounds.x,
-        tree.bounds.y,
-        tree.bounds.width,
-        tree.bounds.height
-    );
-
-    //draw each node
-    if(tree.nodes.length) {
-        for(var i = 0; i < tree.nodes.length; ++i) {
-            //recurse for children
-            this.drawQuadTree(tree.nodes[i], style, gfx);
-        }
-    }
-
-    return gfx;
-};*/
 
 debug._bindEvents = function() {
     var activePanel,
@@ -269,14 +212,19 @@ debug._createMenuStats = function() {
 
     var div = document.createElement('div'),
         fps = this._stats.fps = document.createElement('div'),
-        ms = this._stats.ms = document.createElement('div'),
-        obj = this._stats.obj = document.createElement('div');
+        dpf = this._stats.dpf = document.createElement('div'),
+        ms = this._stats.ms = document.createElement('div');
+        //obj = this._stats.obj = document.createElement('div');
 
     this.ui.addClass(div, 'gf_debug_stats');
 
-    this.ui.addClass(obj, 'gf_debug_stats_item world');
+    /*this.ui.addClass(obj, 'gf_debug_stats_item world');
     this.ui.setHtml(obj, '<span>0</span>/<span>0</span> Scene Objects Renderable');
-    div.appendChild(obj);
+    div.appendChild(obj);*/
+
+    this.ui.addClass(dpf, 'gf_debug_stats_item dpf');
+    this.ui.setHtml(dpf, '<span>0</span> Draws Each Frame');
+    div.appendChild(dpf);
 
     this.ui.addClass(ms, 'gf_debug_stats_item ms');
     this.ui.setHtml(ms, '<span>0</span> ms');
@@ -299,19 +247,23 @@ debug.padString = function(str, to, pad) {
 
 debug._statsTick = function() {
     var ms = this.game.timings.tickEnd - this.game.timings.tickStart,
-        fps = 1000/ms;
+        fps = 1000/ms,
+        dpf = this.game.renderer.renderSession.drawCount;
 
     fps = fps > 60 ? 60 : fps;
 
     //update stats
-    this.ui.setText(this._stats.ms.firstElementChild, debug.padString(ms.toFixed(2), 7, 0));
+    this.ui.setText(this._stats.dpf.firstElementChild, debug.padString(dpf, 3, 0));
+    this.ui.setText(this._stats.ms.firstElementChild, debug.padString(ms.toFixed(0), 4, 0));
     this.ui.setText(this._stats.fps.firstElementChild, debug.padString(fps.toFixed(2), 5, 0));
 
     //count objects in the world
-    var objs = 0,
+    /*var objs = debug._countObjs(this.game.stage),
         rnds = 0,
-        object = this.game.stage.first,
+        objects = this.game.stage.children,
         lastObj = this.game.stage.last._iNext;
+
+
 
     do {
         objs++;
@@ -320,7 +272,7 @@ debug._statsTick = function() {
             object = object.last._iNext;
             continue;
         }
-        
+
         if(!object.renderable) {
             object = object._iNext;
             continue;
@@ -332,9 +284,8 @@ debug._statsTick = function() {
 
     //set the element values
     debug.ui.setText(debug._stats.obj.children[0], rnds);
-    debug.ui.setText(debug._stats.obj.children[1], objs);
+    debug.ui.setText(debug._stats.obj.children[1], objs);*/
 };
-
 debug.Panel = function(game) {
     this.game = game;
     this.name = '';
@@ -478,6 +429,27 @@ debug.SpritesPanel = function(game) {
         shapes: false,
         tree: false
     };
+
+    //style of things to draw
+    this.style = {
+        _defaultShape: {
+            size: 1,
+            color: 0xff2222,
+            alpha: 1
+        },
+        sensorShape: {
+            size: 1,
+            color: 0x22ff22,
+            alpha: 1
+        },
+        tree: {
+            size: 1,
+            color: 0x2222ff,
+            alpha: 1
+        }
+    };
+
+    this.gfx = new gf.Graphics();
 };
 
 gf.inherit(debug.SpritesPanel, debug.Panel, {
@@ -491,19 +463,11 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
                 '<input type="checkbox" value="" id="gf_debug_toggleShapes" class="gf_debug_toggleShapes" name="check" />' +
                 '<label for="gf_debug_toggleShapes"></label>' +
             '</div>' +
-            '<span>Draw Collider Shapes</span>'/* +
-            '<div class="checkbox">' +
-                '<input type="checkbox" value="" id="gf_debug_toggleQuadTree" class="gf_debug_toggleQuadTree" name="check" />' +
-                '<label for="gf_debug_toggleQuadTree"></label>' +
-            '</div>' +
-            '<span>Draw QuadTree</span>'*/
+            '<span>Draw Collider Shapes (WARNING: Very Expensive!)</span>'
         );
         debug.ui.delegate(pad, 'change', '.gf_debug_toggleShapes', this.toggleType.bind(this, 'shapes'));
-        //debug.ui.delegate(pad, 'change', '.gf_debug_toggleQuadTree', this.toggleType.bind(this, 'tree'));
 
         div.appendChild(pad);
-
-        this.physics = new debug.Physics(div, this.game);
 
         return div;
     },
@@ -511,25 +475,17 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
         this.showing[type] = !this.showing[type];
     },
     tick: function() {
-        if(!this.active)
-            return;
+        var idx = this.game.stage.children.indexOf(this.gfx);
 
-        this.physics.render();
-        /*
-        if(this.game.world !== this.gfx.parent) {
+        //ensure always on top
+        if(idx !== this.game.stage.children.length - 1) {
             if(this.gfx.parent)
                 this.gfx.parent.removeChild(this.gfx);
 
-            this.game.world.add.obj(this.gfx);
+            this.game.stage.addChild(this.gfx);
         }
 
         this.gfx.clear();
-
-        //ensure always on top
-        if(!this.showing.shapes && !this.showing.tree)
-            return this._updateGfx(true);
-        else
-            this._updateGfx();
 
         //draw all the bodies
         if(this.showing.shapes) {
@@ -537,31 +493,12 @@ gf.inherit(debug.SpritesPanel, debug.Panel, {
             this.game.physics.space.eachShape(function(shape) {
                 if(!shape.body) return;
 
-                debug.drawPhysicsShape(
+                shape.sprite._drawShape(
                     shape,
-                    shape.sensor ? self.style.sensorShape : self.style._defaultShape,
-                    self.gfx
+                    self.gfx,
+                    shape.sensor ? self.style.sensorShape : self.style._defaultShape
                 );
             });
-        }
-
-        //draw the quadtree
-        if(this.showing.tree) {
-            debug.drawQuadTree(
-                this.game.physics.tree,
-                this.style.tree,
-                this.gfx
-            );
-        }
-        */
-    },
-    _updateGfx: function(rm) {
-        if(rm) {
-            if(this.gfx.parent)
-                this.gfx.parent.removeChild(this.gfx);
-        } else {
-            if(!this.gfx.parent)
-                this.game.world.add.obj(this.gfx);
         }
     }
 });
@@ -1198,135 +1135,6 @@ gf.inherit(debug.Gamepad, Object, {
             labelEl.classList.remove('positive');
             labelEl.classList.remove('negative');
         }
-    }
-});
-
-debug.Physics = function(container, game) {
-    //create canvases
-    this.canvas = document.createElement('canvas');
-    this.staticCanvas = document.createElement('canvas');
-    this.ctx = this.canvas.getContext('2d');
-    this.sctx = this.staticCanvas.getContext('2d');
-    container.appendChild(this.canvas);
-    //container.appendChild(this.staticCanvas);
-
-    //store trees
-    this.game = game;
-
-    //style of things to draw
-    this.style = {
-        _defaultShape: {
-            size: 1,
-            color: '#ff2222',
-            alpha: 1
-        },
-        sensorShape: {
-            size: 1,
-            color: '#22ff22',
-            alpha: 1
-        },
-        tree: {
-            size: 1,
-            color: '#2222ff',
-            alpha: 1
-        }
-    };
-};
-
-gf.inherit(debug.Physics, Object, {
-    render: function() {
-        var sw, sh,
-            fw, fh,
-            doRender = false,
-            actShapes = this.game.physics.space.activeShapes,
-            stcShapes = this.game.physics.space.staticShapes;
-
-        sw = sh = fw = fh = 0;
-
-        if(actShapes.root) {
-            /* jshint -W106 */
-            sw = actShapes.root.bb_r - actShapes.root.bb_l;
-            sh = actShapes.root.bb_t - actShapes.root.bb_b;
-            /* jshint +W106 */
-            doRender = true;
-        }
-
-        if(stcShapes.root) {
-            /* jshint -W106 */
-            fw = Math.max(sw, stcShapes.root.bb_r - stcShapes.root.bb_l);
-            fh = Math.max(sh, stcShapes.root.bb_t - stcShapes.root.bb_b);
-            /* jshint +W106 */
-            doRender = true;
-        }
-
-        if(doRender) {
-            //clear canvas
-            this.ctx.clearRect(0, 0, this.canvas.width = fw, this.canvas.height = fh);
-
-            //render static shapes
-            //if(this.staticCanvas.width !== sw || this.staticCanvas.height !== sh) {
-            //this.sctx.clearRect(0, 0, this.staticCanvas.width = sw, this.staticCanvas.height = sh);
-            //this.staticCanvas.width = sw;
-            //this.staticCanvas.height = sh;
-            this.drawShapes(this.ctx, stcShapes);
-            //}
-
-            //draw static canvas
-            /* jshint -W106 */
-            //this.ctx.drawImage(this.staticCanvas, 0, 0);
-            /* jshint +W106 */
-
-            //render active shapes
-            this.drawShapes(this.ctx, actShapes);
-        }
-    },
-    drawShapes: function(ctx, tree) {
-        var self = this;
-        tree.each(function(shape) {
-            self.drawShape(
-                ctx,
-                shape,
-                shape.sensor ? self.style.sensorShape : self.style._defaultShape
-            );
-        });
-    },
-    drawShape: function(ctx, shape, style) {
-        ctx.lineWidth = style.size;
-        ctx.strokeStyle = style.color;
-
-        var p = shape.body.p;
-
-        //draw circle
-        if(shape.type === 'circle') {
-            /* jshint -W106 */
-            var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
-                cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
-            /* jshint +W106 */
-
-            ctx.arc(cx, cy, shape.r, 0, 2 * Math.PI);
-        }
-        //draw polygon
-        else {
-            var vx = shape.verts[0],
-                vy = shape.verts[1];
-
-            ctx.beginPath();
-            ctx.moveTo(
-                p.x + vx,
-                p.y + vy
-            );
-
-            for(var i = 2; i < shape.verts.length; i += 2) {
-                ctx.lineTo(
-                    p.x + shape.verts[i],
-                    p.y + shape.verts[i + 1]
-                );
-            }
-
-            ctx.closePath();
-        }
-
-        ctx.stroke();
     }
 });
 

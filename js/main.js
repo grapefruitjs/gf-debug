@@ -75,25 +75,20 @@ debug.logEvent = function(name) {
  * Draws the body of a sprite
  *
  * @method drawPhysicsShape
- * @param body {Body} The body to draw a visual representation of
+ * @param shape {Shape} The cp.Shape to draw a visual representation of
+ * @param gfx {Graphics} The graphics object to use to draw with
  * @param [style] {Object} The style of the line draws
  * @param [style.size=1] {Number} The thickness of the line stroke
  * @param [style.color=0xff2222] {Number} The color of the line stroke
  * @param [style.alpha=1] {Number} The opacity of the line stroke [0 - 1]
- * @param [gfx] {Graphics} The graphics object to use to draw with, if
- *      none is passed a new one is created and added ot the world.
  * @return {Graphics} The graphics object used to draw the shape
  */
-debug.drawPhysicsShape = function(shape, style, gfx) {
-    var p = shape.body.p,
-        game = this.game;
-
-    //setup gfx
-    gfx = gfx || (function() {
-                    var g = new gf.PIXI.Graphics();
-                    game.world.add.obj(g);
-                    return g;
-                })();
+gf.Sprite.prototype._drawShape = function(shape, gfx, style) {
+    var wt = this.worldTransform,
+        x = wt[2],
+        y = wt[5],
+        sx = wt[0],
+        sy = wt[4];
 
     //setup style
     style = style || {};
@@ -105,6 +100,7 @@ debug.drawPhysicsShape = function(shape, style, gfx) {
     );
 
     //draw circle
+    //TODO: THIS SHOULD BE BASED ON WORLD TRANSFORM
     if(shape.type === 'circle') {
         /* jshint -W106 */
         var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
@@ -119,78 +115,25 @@ debug.drawPhysicsShape = function(shape, style, gfx) {
             vy = shape.verts[1];
 
         gfx.moveTo(
-            p.x + vx,
-            p.y + vy
+            x + (sx * vx),
+            y + (sy * vy)
         );
 
         for(var i = 2; i < shape.verts.length; i += 2) {
             gfx.lineTo(
-                p.x + shape.verts[i],
-                p.y + shape.verts[i + 1]
+                x + (sx * shape.verts[i]),
+                y + (sy * shape.verts[i + 1])
             );
         }
 
         gfx.lineTo(
-            p.x + vx,
-            p.y + vy
+            x + (sx * vx),
+            y + (sy * vy)
         );
     }
 
     return gfx;
 };
-
-/**
- * Draws the quadtree used by physics onto the screen
- *
- * @method drawQuadTree
- * @param [tree=game.physics.tree] {QuadTree} The quadtree to draw, generally this is for recursing
- * @param [style] {Object} The style of the line draws
- * @param [style.size=1] {Number} The thickness of the line stroke
- * @param [style.color=0x2222ff] {Number} The color of the line stroke
- * @param [style.alpha=1] {Number} The opacity of the line stroke [0 - 1]
- * @param [gfx] {Graphics} The graphics object to use to draw with, if
- *      none is passed a new one is created and added ot the world.
- * @return {Graphics} The graphics object used to draw the tree
- */
-/*debug.drawQuadTree = function(tree, style, gfx) {
-    var self = this;
-
-    //setup gfx
-    gfx = gfx || (function() {
-                    var g = new gf.PIXI.Graphics();
-                    self.game.world.add.obj(g);
-                    return g;
-                })();
-
-    tree = tree || this.game.physics.tree;
-
-    //setup style
-    style = style || {};
-
-    gfx.lineStyle(
-        style.size !== undefined ? style.size : 1,
-        style.color !== undefined ? style.color : 0x2222ff,
-        style.alpha !== undefined ? style.alpha : 1
-    );
-
-    //draw our bounds
-    gfx.drawRect(
-        tree.bounds.x,
-        tree.bounds.y,
-        tree.bounds.width,
-        tree.bounds.height
-    );
-
-    //draw each node
-    if(tree.nodes.length) {
-        for(var i = 0; i < tree.nodes.length; ++i) {
-            //recurse for children
-            this.drawQuadTree(tree.nodes[i], style, gfx);
-        }
-    }
-
-    return gfx;
-};*/
 
 debug._bindEvents = function() {
     var activePanel,
@@ -254,14 +197,19 @@ debug._createMenuStats = function() {
 
     var div = document.createElement('div'),
         fps = this._stats.fps = document.createElement('div'),
-        ms = this._stats.ms = document.createElement('div'),
-        obj = this._stats.obj = document.createElement('div');
+        dpf = this._stats.dpf = document.createElement('div'),
+        ms = this._stats.ms = document.createElement('div');
+        //obj = this._stats.obj = document.createElement('div');
 
     this.ui.addClass(div, 'gf_debug_stats');
 
-    this.ui.addClass(obj, 'gf_debug_stats_item world');
+    /*this.ui.addClass(obj, 'gf_debug_stats_item world');
     this.ui.setHtml(obj, '<span>0</span>/<span>0</span> Scene Objects Renderable');
-    div.appendChild(obj);
+    div.appendChild(obj);*/
+
+    this.ui.addClass(dpf, 'gf_debug_stats_item dpf');
+    this.ui.setHtml(dpf, '<span>0</span> Draws Each Frame');
+    div.appendChild(dpf);
 
     this.ui.addClass(ms, 'gf_debug_stats_item ms');
     this.ui.setHtml(ms, '<span>0</span> ms');
@@ -284,19 +232,23 @@ debug.padString = function(str, to, pad) {
 
 debug._statsTick = function() {
     var ms = this.game.timings.tickEnd - this.game.timings.tickStart,
-        fps = 1000/ms;
+        fps = 1000/ms,
+        dpf = this.game.renderer.renderSession.drawCount;
 
     fps = fps > 60 ? 60 : fps;
 
     //update stats
-    this.ui.setText(this._stats.ms.firstElementChild, debug.padString(ms.toFixed(2), 7, 0));
+    this.ui.setText(this._stats.dpf.firstElementChild, debug.padString(dpf, 3, 0));
+    this.ui.setText(this._stats.ms.firstElementChild, debug.padString(ms.toFixed(0), 4, 0));
     this.ui.setText(this._stats.fps.firstElementChild, debug.padString(fps.toFixed(2), 5, 0));
 
     //count objects in the world
-    var objs = 0,
+    /*var objs = debug._countObjs(this.game.stage),
         rnds = 0,
-        object = this.game.stage.first,
+        objects = this.game.stage.children,
         lastObj = this.game.stage.last._iNext;
+
+
 
     do {
         objs++;
@@ -317,5 +269,5 @@ debug._statsTick = function() {
 
     //set the element values
     debug.ui.setText(debug._stats.obj.children[0], rnds);
-    debug.ui.setText(debug._stats.obj.children[1], objs);
+    debug.ui.setText(debug._stats.obj.children[1], objs);*/
 };
