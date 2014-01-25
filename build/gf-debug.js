@@ -118,11 +118,11 @@ gf.Sprite.prototype._drawShape = function(shape, gfx, style) {
     //TODO: THIS SHOULD BE BASED ON WORLD TRANSFORM
     if(shape.type === 'circle') {
         /* jshint -W106 */
-        var cx = shape.bb_l + ((shape.bb_r - shape.bb_l) / 2),
-            cy = shape.bb_t + ((shape.bb_b - shape.bb_t) / 2);
+        var cx = x + (shape.c.x * sx),
+            cy = y + (shape.c.y * sy);
         /* jshint +W106 */
 
-        gfx.drawCircle(cx, cy, shape.r);
+        gfx.drawEllipse(cx, cy, shape.r * sx, shape.r * sy);
     }
     //draw polygon
     else {
@@ -247,7 +247,7 @@ debug.padString = function(str, to, pad) {
 
 debug._statsTick = function() {
     var ms = this.game.timings.tickEnd - this.game.timings.tickStart,
-        fps = 1000/ms,
+        fps = Math.round(1000 / (this.game.timings.tickStart - this.game.timings.lastTickStart)),
         dpf = this.game.renderer.renderSession.drawCount;
 
     fps = fps > 60 ? 60 : fps;
@@ -255,7 +255,7 @@ debug._statsTick = function() {
     //update stats
     this.ui.setText(this._stats.dpf.firstElementChild, dpf === undefined ? 'N/A' : debug.padString(dpf, 3, 0));
     this.ui.setText(this._stats.ms.firstElementChild, debug.padString(ms.toFixed(0), 4, 0));
-    this.ui.setText(this._stats.fps.firstElementChild, debug.padString(fps.toFixed(2), 5, 0));
+    this.ui.setText(this._stats.fps.firstElementChild, debug.padString(fps.toFixed(0), 2, 0));
 
     //count objects in the world
     /*var objs = debug._countObjs(this.game.stage),
