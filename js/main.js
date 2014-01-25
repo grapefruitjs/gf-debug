@@ -238,7 +238,7 @@ debug._statsTick = function() {
     fps = fps > 60 ? 60 : fps;
 
     //update stats
-    this.ui.setText(this._stats.dpf.firstElementChild, debug.padString(dpf, 3, 0));
+    this.ui.setText(this._stats.dpf.firstElementChild, dpf === undefined ? 'N/A' : debug.padString(dpf, 3, 0));
     this.ui.setText(this._stats.ms.firstElementChild, debug.padString(ms.toFixed(0), 4, 0));
     this.ui.setText(this._stats.fps.firstElementChild, debug.padString(fps.toFixed(2), 5, 0));
 
