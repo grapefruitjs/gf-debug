@@ -7,7 +7,7 @@ debug.Graph = function(container, width, height, dataStyles) {
     this.ctx = this.canvas.getContext('2d');
 
     //setup data canvases, these are used to prerender the data graph
-    //and having two of them allows me to clear one with the other takes
+    //and having two of them allows me to clear one when the other takes
     //up the entire graph, so I have "wrap" the graph around to get more
     this.dataCanvases = [
         document.createElement('canvas'),
@@ -138,17 +138,19 @@ gf.inherit(debug.Graph, Object, {
             s1,
             h
         );
-        this.ctx.drawImage(
-            c2,
-            s2 - w, //sx
-            0, //sy
-            w - (s2 - w), //sw
-            h, //sh
-            this.keySize, //dx
-            0, //dy
-            w - (s2 - w), //dw
-            h //dh
-        );
+        if(s2 - w >= 0) {
+            this.ctx.drawImage(
+                c2,
+                s2 - w, //sx
+                0, //sy
+                w - (s2 - w), //sw
+                h, //sh
+                this.keySize, //dx
+                0, //dy
+                w - (s2 - w), //dw
+                h //dh
+            );
+        }
 
         if(w === s1) {
             this.dataScroll[ni] = this.dataLineWidth;
